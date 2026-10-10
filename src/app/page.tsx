@@ -8,6 +8,18 @@ import { toast } from "sonner";
 import { Logo } from "@/components/app-shell";
 import { createClient } from "@/lib/supabase/client";
 
+type ApiError = { code?: string; message: string; requestId?: string; hint?: string; entries?: string[] };
+
+function formatApiError(error: ApiError | undefined, fallback: string) {
+  if (!error) return fallback;
+  const parts = [error.message];
+  if (error.hint && error.hint !== error.message) parts.push(error.hint);
+  if (error.entries?.length) parts.push(`Archive entries: ${error.entries.join(", ")}`);
+  if (error.code) parts.push(`Code: ${error.code}`);
+  if (error.requestId) parts.push(`Request: ${error.requestId}`);
+  return parts.join(" ");
+}
+
 export default function Home() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -39,11 +51,17 @@ export default function Home() {
       const body = new FormData();
       body.append("file", selected);
       const uploadResponse = await fetch("/api/upload", { method: "POST", body });
-      const uploadResult = await uploadResponse.json() as { success: boolean; data?: { uploadId: string; messageCount: number }; error?: { message: string } };
-      if (!uploadResponse.ok || !uploadResult.success || !uploadResult.data) throw new Error(uploadResult.error?.message ?? "Upload failed");
+      const uploadResult = await uploadResponse.json() as { success: boolean; data?: { uploadId: string; messageCount: number }; error?: ApiError };
+      if (!uploadResponse.ok || !uploadResult.success || !uploadResult.data) {
+        console.error("Loopin upload failed", uploadResult);
+        throw new Error(formatApiError(uploadResult.error, "Upload failed"));
+      }
       const processResponse = await fetch("/api/process", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uploadId: uploadResult.data.uploadId }) });
-      const processResult = await processResponse.json() as { success: boolean; error?: { message: string } };
-      if (!processResponse.ok || !processResult.success) throw new Error(processResult.error?.message ?? "Processing failed");
+      const processResult = await processResponse.json() as { success: boolean; error?: ApiError };
+      if (!processResponse.ok || !processResult.success) {
+        console.error("Loopin processing failed", processResult);
+        throw new Error(formatApiError(processResult.error, "Processing failed"));
+      }
       toast.success(`${uploadResult.data.messageCount} messages processed. Your leads are ready.`);
     } catch (error) {
       setFile(null);

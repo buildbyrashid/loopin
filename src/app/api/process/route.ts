@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import JSZip from "jszip";
 import { z } from "zod";
-import { jsonError, jsonSuccess } from "@/lib/api";
+import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
 import { formatConversation, parseWhatsAppChat } from "@/lib/whatsapp";
 
@@ -58,27 +58,39 @@ function normalizeFollowupDate(value: string | null | undefined, pattern: "price
   return null;
 }
 
+function archiveEntries(zip: JSZip) {
+  const entries = Object.keys(zip.files);
+  return entries.length > 40 ? [...entries.slice(0, 40), `...and ${entries.length - 40} more`] : entries;
+}
+
 export async function POST(request: Request) {
+  const requestId = createRequestId();
   let userId = "unknown";
   let uploadId: string | undefined;
   let supabase: Awaited<ReturnType<typeof createClient>> = null;
   try {
     supabase = await createClient();
-    if (!supabase) return jsonError("Supabase is not configured.", "CONFIGURATION_ERROR", 503);
+    if (!supabase) return jsonError("Supabase is not configured.", "CONFIGURATION_ERROR", 503, { requestId });
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401);
+    if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401, { requestId });
     userId = user.id;
-    if (!process.env.OPENAI_API_KEY) return jsonError("OpenAI is not configured yet.", "CONFIGURATION_ERROR", 503);
+    if (!process.env.OPENAI_API_KEY) return jsonError("OpenAI is not configured yet.", "CONFIGURATION_ERROR", 503, { requestId });
     const body = await request.json() as { uploadId?: string };
-    if (!body.uploadId) return jsonError("An upload id is required.", "VALIDATION_ERROR", 400);
+    if (!body.uploadId) return jsonError("An upload id is required.", "VALIDATION_ERROR", 400, { requestId });
     uploadId = body.uploadId;
     const { data: upload } = await supabase.from("uploads").select("id").eq("id", uploadId).eq("user_id", user.id).single();
-    if (!upload) return jsonError("Upload not found.", "NOT_FOUND", 404);
+    if (!upload) return jsonError("Upload not found.", "NOT_FOUND", 404, { requestId });
     const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(`${user.id}/${upload.id}.zip`);
-    if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500);
+    if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500, { requestId, hint: downloadError?.message });
     const zip = await JSZip.loadAsync(await file.arrayBuffer());
     const chatFile = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
-    if (!chatFile) return jsonError("The WhatsApp chat.txt or _chat.txt file is missing.", "INVALID_EXPORT", 400);
+    if (!chatFile) {
+      const entries = archiveEntries(zip);
+      const message = "The WhatsApp chat.txt or _chat.txt file is missing.";
+      await supabase.from("uploads").update({ status: "failed", error_message: `[INVALID_EXPORT] ${message} Entries: ${entries.join(", ")}. Request: ${requestId}` }).eq("id", upload.id).eq("user_id", user.id);
+      console.error("POST /api/process failed", { requestId, userId, uploadId, code: "INVALID_EXPORT", message, entries });
+      return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The upload must contain chat.txt or _chat.txt.", entries });
+    }
     const messages = parseWhatsAppChat(await chatFile.async("string"));
     const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav|aac|amr|3gp)$/i.test(name));
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -111,10 +123,11 @@ export async function POST(request: Request) {
     await supabase.from("uploads").update({ status: "completed" }).eq("id", upload.id).eq("user_id", user.id);
     return jsonSuccess({ uploadId: upload.id, leads: [savedLead] });
   } catch (error) {
+    const message = errorMessage(error, "Processing failed; please retry this upload.");
     if (supabase && uploadId) {
-      try { await supabase.from("uploads").update({ status: "failed", error_message: "Processing failed; please retry this upload." }).eq("id", uploadId).eq("user_id", userId); } catch { /* preserve the original processing error */ }
+      try { await supabase.from("uploads").update({ status: "failed", error_message: `[PROCESSING_ERROR] ${message} Request: ${requestId}` }).eq("id", uploadId).eq("user_id", userId); } catch { /* preserve the original processing error */ }
     }
-    console.error("POST /api/process", { userId, error });
-    return jsonError("We could not finish processing this export. Please try again.", "PROCESSING_ERROR", 500);
+    console.error("POST /api/process failed", { requestId, userId, uploadId, code: "PROCESSING_ERROR", error });
+    return jsonError("We could not finish processing this export. Please try again.", "PROCESSING_ERROR", 500, { requestId, hint: message });
   }
 }

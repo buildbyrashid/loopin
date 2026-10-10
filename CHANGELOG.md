@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:34:49+05:30 — Add exact upload diagnostics
+
+- Changed: Added request IDs, structured error codes, safe archive-entry diagnostics, terminal/browser logging, and persisted `uploads.error_message` details for upload and processing failures. Invalid archives now create a failed upload record so the same cause is visible in the Admin → Uploads page and Supabase table.
+- Why: Make a 400 upload response actionable instead of requiring the user to infer the cause from a generic toast or server status line.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Supabase platform Logs do not automatically receive logs emitted by a separate Next.js server; the exact upload diagnostic is persisted in the `uploads` table and shown in the admin console.
+
 ## 2026-10-11T02:28:00+05:30 — Harden AI extraction and processing failures
 
 - Changed: Normalize common AI response variations before schema validation, log validation fields without conversation content, and mark failed uploads when processing errors occur.

@@ -60,7 +60,7 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route with engagement classification and follow-up date defaults, follow-up dashboard with reasons and date groups, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
+- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route with engagement classification and follow-up date defaults, follow-up dashboard with reasons and date groups, leads pipeline, lead detail editor, settings, protected admin console, structured API diagnostics, and custom error/404 pages.
 - Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. Workspace pages show an empty state until the signed-in user imports or creates leads; the landing page still contains illustrative preview cards.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
@@ -86,5 +86,9 @@ The admin console is available at `/admin` and includes overview, users, leads, 
 The SQL script promotes an existing authenticated profile; it does not create a password or expose credentials in the repository.
 
 Workspace data is user-scoped. Regular users only receive leads belonging to their authenticated Supabase user ID. Admins are routed to the admin console after login and receive the admin overview even if `/followups` is opened directly.
+
+### Upload error diagnostics
+
+Upload and processing failures return a structured response containing an error code and request ID. The landing page displays the message, diagnostic hint, archive entry names when relevant, and request ID; the browser console and Next.js terminal log the same request context. Once an upload row exists, the exact safe diagnostic is also saved in `uploads.error_message`, which is visible in the protected Admin → Uploads page and the Supabase `uploads` table. These diagnostics never include chat message text, audio bytes, API keys, or stack traces.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

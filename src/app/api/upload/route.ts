@@ -1,35 +1,72 @@
 import JSZip from "jszip";
-import { jsonError, jsonSuccess } from "@/lib/api";
+import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
 import { parseWhatsAppChat } from "@/lib/whatsapp";
 
 const MAX_SIZE = 25 * 1024 * 1024;
 
+function archiveEntries(zip: JSZip) {
+  const entries = Object.keys(zip.files);
+  return entries.length > 40 ? [...entries.slice(0, 40), `...and ${entries.length - 40} more`] : entries;
+}
+
+function persistedError(code: string, message: string, requestId: string, entries?: string[]) {
+  const entryText = entries?.length ? ` Entries: ${entries.join(", ")}.` : "";
+  return `[${code}] ${message}${entryText} Request: ${requestId}`;
+}
+
 export async function POST(request: Request) {
+  const requestId = createRequestId();
+  let userId = "unknown";
+  let uploadId: string | undefined;
+  let supabase: Awaited<ReturnType<typeof createClient>> = null;
   try {
-    const supabase = await createClient();
-    if (!supabase) return jsonError("Supabase is not configured.", "CONFIGURATION_ERROR", 503);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401);
+    supabase = await createClient();
+    if (!supabase) return jsonError("Supabase is not configured.", "CONFIGURATION_ERROR", 503, { requestId });
+    const database = supabase;
+    const { data: { user } } = await database.auth.getUser();
+    if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401, { requestId });
+    userId = user.id;
     const file = (await request.formData()).get("file");
-    if (!(file instanceof File)) return jsonError("Upload a .zip file.", "VALIDATION_ERROR", 400);
-    if (!file.name.toLowerCase().endsWith(".zip") || file.size > MAX_SIZE) return jsonError("Only .zip files up to 25MB are supported.", "VALIDATION_ERROR", 400);
+    if (!(file instanceof File)) return jsonError("Upload a .zip file.", "VALIDATION_ERROR", 400, { requestId });
+    if (!file.name.toLowerCase().endsWith(".zip") || file.size > MAX_SIZE) return jsonError("Only .zip files up to 25MB are supported.", "VALIDATION_ERROR", 400, { requestId });
+
+    const { data: upload, error: insertError } = await database.from("uploads").insert({ user_id: user.id, file_name: file.name, status: "processing" }).select().single();
+    if (insertError || !upload) {
+      console.error("POST /api/upload failed", { requestId, userId, code: "DATABASE_ERROR", error: insertError });
+      return jsonError("Unable to save this upload.", "DATABASE_ERROR", 500, { requestId });
+    }
+    uploadId = upload.id;
+    const fail = async (message: string, code: string, status: number, details?: { hint?: string; entries?: string[] }) => {
+      const savedMessage = persistedError(code, message, requestId, details?.entries);
+      await database.from("uploads").update({ status: "failed", error_message: savedMessage }).eq("id", upload.id).eq("user_id", user.id);
+      console.error("POST /api/upload failed", { requestId, userId, uploadId: upload.id, code, message, details });
+      return jsonError(message, code, status, { requestId, ...details });
+    };
+
+    let zip: JSZip;
+    try {
+      zip = await JSZip.loadAsync(await file.arrayBuffer());
+    } catch (error) {
+      return fail(`The ZIP archive could not be opened: ${errorMessage(error, "invalid ZIP archive")}.`, "INVALID_EXPORT", 400);
+    }
+    const entries = archiveEntries(zip);
+    const chat = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
+    if (!chat) return fail("This archive does not contain a WhatsApp chat.txt or _chat.txt export.", "INVALID_EXPORT", 400, { hint: "Export the chat from the WhatsApp mobile app and choose Include media. The ZIP must contain chat.txt or _chat.txt.", entries });
+    const messages = parseWhatsAppChat(await chat.async("string"));
+    if (!messages.length) return fail("We could not find readable messages in this export.", "INVALID_EXPORT", 400, { entries });
 
     const bytes = await file.arrayBuffer();
-    const zip = await JSZip.loadAsync(bytes);
-    const chat = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
-    if (!chat) return jsonError("This archive does not contain a WhatsApp chat.txt or _chat.txt export.", "INVALID_EXPORT", 400);
-    const messages = parseWhatsAppChat(await chat.async("string"));
-    if (!messages.length) return jsonError("We could not find readable messages in this export.", "INVALID_EXPORT", 400);
-
-    const { data: upload, error: insertError } = await supabase.from("uploads").insert({ user_id: user.id, file_name: file.name, status: "processing" }).select().single();
-    if (insertError || !upload) { console.error("POST /api/upload insert", user.id, insertError); return jsonError("Unable to save this upload.", "DATABASE_ERROR", 500); }
     const storagePath = `${user.id}/${upload.id}.zip`;
-    const { error: storageError } = await supabase.storage.from("whatsapp-exports").upload(storagePath, bytes, { contentType: "application/zip", upsert: false });
-    if (storageError) { await supabase.from("uploads").update({ status: "failed", error_message: "Storage upload failed" }).eq("id", upload.id); console.error("POST /api/upload storage", user.id, storageError); return jsonError("We could not store this export.", "STORAGE_ERROR", 500); }
-    return jsonSuccess({ uploadId: upload.id, fileName: file.name, messageCount: messages.length, voiceNotes: Object.keys(zip.files).filter((name) => /\.(opus|ogg|m4a|mp3)$/i.test(name)).length }, 201);
+    const { error: storageError } = await database.storage.from("whatsapp-exports").upload(storagePath, bytes, { contentType: "application/zip", upsert: false });
+    if (storageError) return fail("We could not store this export.", "STORAGE_ERROR", 500, { hint: storageError.message });
+    return jsonSuccess({ uploadId: upload.id, fileName: file.name, messageCount: messages.length, voiceNotes: entries.filter((name) => /\.(opus|ogg|m4a|mp3|wav|aac|amr|3gp)$/i.test(name)).length }, 201);
   } catch (error) {
-    console.error("POST /api/upload", error);
-    return jsonError("We could not read this WhatsApp export.", "INVALID_EXPORT", 400);
+    const message = errorMessage(error, "We could not read this WhatsApp export.");
+    if (supabase && uploadId) {
+      try { await supabase.from("uploads").update({ status: "failed", error_message: persistedError("INVALID_EXPORT", message, requestId) }).eq("id", uploadId).eq("user_id", userId); } catch { /* preserve the original upload error */ }
+    }
+    console.error("POST /api/upload failed", { requestId, userId, uploadId, code: "INVALID_EXPORT", error });
+    return jsonError(`We could not read this WhatsApp export: ${message}`, "INVALID_EXPORT", 400, { requestId });
   }
 }
