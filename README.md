@@ -60,7 +60,7 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
+- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route with engagement classification and follow-up date defaults, follow-up dashboard with reasons and date groups, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
 - Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. Workspace pages show an empty state until the signed-in user imports or creates leads; the landing page still contains illustrative preview cards.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
@@ -68,6 +68,7 @@ npm run start
 
 1. Create a Supabase project and enable Email/Password under Authentication. Enable Google only after adding its OAuth client ID and secret.
 2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor. This creates profiles, leads, uploads, the private `whatsapp-exports` bucket, and user-scoped RLS policies.
+   If the schema was already applied before engagement reasons were added, also run [`supabase/add-engagement-reason.sql`](supabase/add-engagement-reason.sql).
 3. Set `NEXT_PUBLIC_SUPABASE_URL` to the project URL (`https://<project-ref>.supabase.co`) and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the anon JWT. Do not put a JWT in the URL field. Add an OpenAI key to enable Whisper/GPT processing.
 4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs and configure the same callback in the Google Cloud OAuth client.
 

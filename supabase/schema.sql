@@ -17,6 +17,7 @@ create table if not exists public.leads (
   status text not null default 'warm' check (status in ('hot', 'warm', 'cold', 'won', 'lost')),
   priority text check (priority in ('high', 'low', 'unclear')),
   engagement_pattern text check (engagement_pattern in ('price_only', 'engaged_evaluating', 'unclear')),
+  engagement_reason text,
   summary text,
   objections text,
   promises_made text,

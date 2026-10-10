@@ -7,5 +7,5 @@ export function StatusBadge({ status }: { status: LeadStatus }) {
 
 export function PriorityBadge({ priority }: { priority: string }) {
   const styles = priority === "high" ? "bg-red-50 text-red-700" : priority === "low" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700";
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${styles}`}>{priority === "unclear" ? "Medium" : priority}</span>;
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${styles}`}>{priority === "unclear" ? "Unclear" : priority}</span>;
 }

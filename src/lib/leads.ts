@@ -8,6 +8,7 @@ type LeadRow = {
   status: string;
   priority: string | null;
   engagement_pattern: string | null;
+  engagement_reason: string | null;
   summary: string | null;
   objections: string | null;
   promises_made: string | null;
@@ -42,18 +43,20 @@ export function mapLead(row: LeadRow): Lead {
     status: toStatus(row.status),
     priority: toPriority(row.priority),
     engagementPattern: toEngagement(row.engagement_pattern),
+    engagementReason: row.engagement_reason ?? undefined,
     summary: row.summary ?? "No summary available yet.",
     objections: row.objections ?? undefined,
     promisesMade: row.promises_made ?? undefined,
     suggestedFollowup: row.suggested_followup ?? "",
     suggestedFollowupDate: displayDate(row.suggested_followup_date),
+    suggestedFollowupDateIso: row.suggested_followup_date ?? undefined,
     lastContactDate: displayDate(row.last_contact_date),
     followedUp: row.followed_up,
     rawTranscript: row.raw_transcript ?? undefined,
   };
 }
 
-const leadSelect = "id,name,phone,status,priority,engagement_pattern,summary,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
+const leadSelect = "id,name,phone,status,priority,engagement_pattern,engagement_reason,summary,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
 
 export async function getCurrentUserRole() {
   const supabase = await createClient();

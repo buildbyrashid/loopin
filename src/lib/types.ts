@@ -9,11 +9,13 @@ export type Lead = {
   status: LeadStatus;
   priority: LeadPriority;
   engagementPattern?: EngagementPattern;
+  engagementReason?: string;
   summary: string;
   objections?: string;
   promisesMade?: string;
   suggestedFollowup: string;
   suggestedFollowupDate: string;
+  suggestedFollowupDateIso?: string;
   lastContactDate?: string;
   followedUp: boolean;
   rawTranscript?: string;

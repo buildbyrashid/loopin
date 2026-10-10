@@ -67,6 +67,13 @@ Record each meaningful project change during the event, newest first. Update thi
 - Validation: TypeScript, ESLint, diff check, and `next build --webpack` passed.
 - Limitations: The landing page still shows illustrative example cards; those cards are not user data and cannot be uploaded.
 
+## 2026-10-11T01:33:55+05:30 — Apply engagement classification rules
+
+- Changed: Added the detailed `price_only`, `engaged_evaluating`, and `unclear` rules to the AI prompt; enforce priority server-side; calculate explicit or default follow-up dates; store `engagement_reason`; and show reasons, pattern labels, and real date groups in the follow-up dashboard. Added the existing-database migration SQL.
+- Why: Make classification and follow-up urgency match the requested sales behavior instead of relying on unvalidated model output.
+- Validation: TypeScript, ESLint, diff check, and `next build --webpack` passed.
+- Limitations: Existing Supabase projects must run `supabase/add-engagement-reason.sql` before processing new uploads. AI classification remains dependent on the quality of the exported conversation.
+
 ## 2026-10-10T23:04:57+05:30 — Record solo participant
 
 - Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.
