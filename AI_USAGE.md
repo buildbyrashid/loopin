@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T02:04:18+05:30 | Codex | Fix Google account selection and signed-in landing header | Added the Google `select_account` OAuth parameter and role-aware profile loading in `src/components/auth-form.tsx` and `src/app/page.tsx`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed; Google provider configuration remains external. |
+
 The table below records participant AI usage during the event. Mark human review as pending until someone has reviewed the contribution.
 
 | Date and time with timezone | Tool / model, if known | Task | Assistance and affected files | Human review / corrections | Validation and result |

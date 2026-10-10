@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:04:18+05:30 — Fix Google account selection and signed-in header
+
+- Changed: Added the Google OAuth `select_account` prompt and made the landing header load the current Supabase profile name and role-aware destination.
+- Why: Prevent Google from silently reusing another browser account and make the signed-in state visible to users.
+- Validation: TypeScript, ESLint, `git diff --check`, and the production Webpack build passed.
+- Limitations: Google account selection still depends on the provider being enabled and the callback URL being registered in Supabase and Google Cloud.
+
 ## 2026-10-11T00:52:00+05:30 — Use Webpack for local development
 
 - Changed: Updated `npm run dev` to use `next dev --webpack`.

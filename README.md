@@ -72,6 +72,8 @@ npm run start
 3. Set `NEXT_PUBLIC_SUPABASE_URL` to the project URL (`https://<project-ref>.supabase.co`) and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the anon JWT. Do not put a JWT in the URL field. Add an OpenAI key to enable Whisper/GPT processing.
 4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs and configure the same callback in the Google Cloud OAuth client.
 
+The Google sign-in button always requests the Google account chooser. After authentication, the landing header shows the signed-in profile name and links admins to the admin console and regular users to their workspace.
+
 ### Admin console setup
 
 The admin console is available at `/admin` and includes overview, users, leads, and uploads pages. Access is checked on the server against `profiles.role`; the service-role key is never sent to the browser.
