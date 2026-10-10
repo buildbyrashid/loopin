@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T04:05:00+05:30 | Codex | Prevent founder names from becoming client leads | Added profile-aware sender direction for voice notes, client-author fallback naming, and saved the holistic context fields during processing in `src/app/api/process/route.ts`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
+
 | 2026-10-11T03:35:00+05:30 | Codex | Extract holistic client context | Expanded the processing prompt and lead schema for business need, concerns, buying signals, sentiment, and evidence-based follow-ups; added the Supabase migration and lead detail display. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
 
 | 2026-10-11T03:12:00+05:30 | Codex | Add live processing progress and concurrent transcription | Added `uploads.progress` fields and status polling, a progress UI, and bounded four-at-a-time voice transcription in `src/app/api/process/route.ts`, `src/app/api/upload/status/route.ts`, `src/app/page.tsx`, and Supabase migration docs. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |

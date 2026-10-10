@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import { z } from "zod";
 import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
-import { findWhatsAppChat, formatConversation } from "@/lib/whatsapp";
+import { findWhatsAppChat } from "@/lib/whatsapp";
 
 const extractionSchema = z.object({ name: z.string().min(1), phone: z.string().nullable().optional(), status: z.enum(["hot", "warm", "cold"]), priority: z.enum(["high", "low", "unclear"]).optional(), engagement_pattern: z.enum(["price_only", "engaged_evaluating", "unclear"]), engagement_reason: z.string().min(1).max(500).optional(), summary: z.string(), business_need: z.string(), client_concerns: z.string(), buying_signals: z.string(), client_sentiment: z.enum(["positive", "neutral", "concerned", "negative", "mixed", "unclear"]), objections: z.string(), promises_made: z.string(), suggested_followup: z.string(), suggested_followup_date: z.string().nullable().optional() });
 
@@ -11,7 +11,22 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function normalizeExtraction(payload: unknown) {
+function normalizedIdentity(value: string) {
+  return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+function sameIdentity(left: string, right: string) {
+  const normalizedLeft = normalizedIdentity(left);
+  const normalizedRight = normalizedIdentity(right);
+  return Boolean(normalizedLeft && normalizedRight && (normalizedLeft === normalizedRight || normalizedLeft.includes(normalizedRight) || normalizedRight.includes(normalizedLeft)));
+}
+
+function isFounderSender(sender: string, founderIdentity: string) {
+  const normalizedSender = normalizedIdentity(sender);
+  return normalizedSender === "you" || normalizedSender === "me" || normalizedSender === "myself" || sameIdentity(sender, founderIdentity);
+}
+
+function normalizeExtraction(payload: unknown, founderIdentity: string, fallbackClientName: string) {
   const root = asRecord(payload);
   const candidate = Array.isArray(root.leads) ? root.leads[0] : root.lead ?? root;
   const data = asRecord(candidate);
@@ -22,8 +37,10 @@ function normalizeExtraction(payload: unknown) {
   const clientSentiment = ["positive", "neutral", "concerned", "negative", "mixed", "unclear"].includes(String(data.client_sentiment)) ? data.client_sentiment as "positive" | "neutral" | "concerned" | "negative" | "mixed" | "unclear" : "unclear";
   const phone = typeof data.phone === "string" && data.phone.trim() ? data.phone.trim() : null;
   const suggestedFollowupDate = typeof data.suggested_followup_date === "string" && data.suggested_followup_date.trim() ? data.suggested_followup_date.trim() : null;
+  const extractedName = text("name", "WhatsApp contact");
+  const name = sameIdentity(extractedName, founderIdentity) ? fallbackClientName : extractedName;
   return {
-    name: text("name", "WhatsApp contact"), phone, status, priority,
+    name, phone, status, priority,
     engagement_pattern: engagementPattern,
     engagement_reason: text("engagement_reason", engagementPattern === "price_only" ? "Asked for price or details and did not continue the conversation." : engagementPattern === "engaged_evaluating" ? "Discussed the offer with follow-up questions or concerns." : "There is not enough conversation to classify engagement yet."),
     summary: text("summary", "Conversation imported from WhatsApp."),
@@ -80,6 +97,10 @@ function transcriptionMimeType(name: string) {
   return extension === "ogg" || extension === "opus" ? "audio/ogg" : undefined;
 }
 
+function isAudioAttachment(name: string | undefined) {
+  return Boolean(name && /\.(?:opus|ogg|m4a|mp3|wav|flac|webm|mp4|mpeg|mpga|oga)$/i.test(name));
+}
+
 async function forEachConcurrent<T>(items: T[], limit: number, worker: (item: T) => Promise<void>) {
   let nextIndex = 0;
   const workerCount = Math.min(limit, items.length);
@@ -103,6 +124,8 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401, { requestId });
     userId = user.id;
+    const { data: profile } = await supabase.from("profiles").select("full_name,email").eq("id", user.id).maybeSingle();
+    const founderIdentity = (profile?.full_name?.trim() || user.user_metadata?.full_name?.trim() || profile?.email?.trim() || user.email?.trim() || "").trim();
     if (!process.env.OPENAI_API_KEY) return jsonError("OpenAI is not configured yet.", "CONFIGURATION_ERROR", 503, { requestId });
     const body = await request.json() as { uploadId?: string };
     if (!body.uploadId) return jsonError("An upload id is required.", "VALIDATION_ERROR", 400, { requestId });
@@ -131,7 +154,10 @@ export async function POST(request: Request) {
       return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The ZIP must contain a .txt file with WhatsApp messages. Custom filenames are supported.", entries });
     }
     const { messages } = chat;
-    const voiceNames = [...new Set(messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav)$/i.test(name)))];
+    const clientSenders = [...new Set(messages.map((message) => message.sender.trim()).filter((sender) => sender && !isFounderSender(sender, founderIdentity)))];
+    const clientVoiceSenders = [...new Set(messages.filter((message) => isAudioAttachment(message.attachment) && !isFounderSender(message.sender, founderIdentity)).map((message) => message.sender.trim()).filter(Boolean))];
+    const fallbackClientName = clientVoiceSenders[0] || clientSenders[0] || "WhatsApp contact";
+    const voiceNames = [...new Set(messages.map((message) => message.attachment).filter((name): name is string => isAudioAttachment(name)))];
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const transcripts: Record<string, string> = {};
     await updateProgress(10, voiceNames.length ? `Found ${voiceNames.length} voice notes...` : "Preparing conversation analysis...");
@@ -157,13 +183,19 @@ export async function POST(request: Request) {
       }
     });
     await updateProgress(80, "Analyzing conversation with AI...");
-    const conversation = formatConversation(messages).replace(/<attached:\s*([^>]+)>/gi, (_, name: string) => `[Voice note transcript: ${transcripts[name.trim()] ?? "unavailable"}]`);
+    const conversation = messages.map((message) => {
+      const base = `[${message.date}] ${message.sender}: ${message.text}`;
+      if (!isAudioAttachment(message.attachment)) return base;
+      const direction = isFounderSender(message.sender, founderIdentity) ? "sent by founder" : "received from client";
+      return `${base} [Voice note ${direction}; transcript: ${transcripts[message.attachment!] ?? "unavailable"}]`;
+    }).join("\n");
     const todayIso = new Date().toISOString().slice(0, 10);
-    const response = await openai.chat.completions.create({ model: "gpt-4o-mini", response_format: { type: "json_object" }, messages: [{ role: "system", content: `${classificationPrompt}\nCurrent date for calculating explicit timeframes: ${todayIso}.` }, { role: "user", content: conversation }] });
+    const identityContext = `\nIdentity rules for this export: the signed-in workspace owner/founder is "${founderIdentity || "unknown"}". Never use the founder's name as the lead name. A voice note marked "sent by founder" is founder context, not client identity; a voice note marked "received from client" is client evidence. Client-side message authors detected in the export: ${clientSenders.length ? clientSenders.join(", ") : "none"}. Prefer a reliable client-side author name; use "WhatsApp contact" when no client identity is clear.`;
+    const response = await openai.chat.completions.create({ model: "gpt-4o-mini", response_format: { type: "json_object" }, messages: [{ role: "system", content: `${classificationPrompt}${identityContext}\nCurrent date for calculating explicit timeframes: ${todayIso}.` }, { role: "user", content: conversation }] });
     const raw = response.choices[0]?.message.content;
     let payload: unknown = null;
     try { payload = raw ? JSON.parse(raw) : null; } catch { throw new Error("The AI response was not valid JSON"); }
-    const extracted = extractionSchema.safeParse(normalizeExtraction(payload));
+    const extracted = extractionSchema.safeParse(normalizeExtraction(payload, founderIdentity, fallbackClientName));
     if (!extracted.success) {
       console.error("AI extraction validation failed", extracted.error.issues.map((issue) => ({ path: issue.path, code: issue.code })));
       throw new Error("The AI response did not match the lead schema");
@@ -172,7 +204,7 @@ export async function POST(request: Request) {
     const priority = lead.engagement_pattern === "engaged_evaluating" ? "high" : lead.engagement_pattern === "price_only" ? "low" : "unclear";
     const suggestedFollowupDate = normalizeFollowupDate(lead.suggested_followup_date, lead.engagement_pattern);
     const engagementReason = lead.engagement_reason?.trim() || (lead.engagement_pattern === "price_only" ? "Asked for price or details and did not continue the conversation." : lead.engagement_pattern === "engaged_evaluating" ? "Discussed the offer with follow-up questions or concerns." : "There is not enough conversation to classify engagement yet.");
-    const { data: savedLead, error: leadError } = await supabase.from("leads").insert({ user_id: user.id, name: lead.name, phone: lead.phone, status: lead.status, priority, engagement_pattern: lead.engagement_pattern, engagement_reason: engagementReason, summary: lead.summary, objections: lead.objections, promises_made: lead.promises_made, suggested_followup: lead.suggested_followup, suggested_followup_date: suggestedFollowupDate, raw_transcript: conversation }).select().single();
+    const { data: savedLead, error: leadError } = await supabase.from("leads").insert({ user_id: user.id, name: lead.name, phone: lead.phone, status: lead.status, priority, engagement_pattern: lead.engagement_pattern, engagement_reason: engagementReason, summary: lead.summary, business_need: lead.business_need, client_concerns: lead.client_concerns, buying_signals: lead.buying_signals, client_sentiment: lead.client_sentiment, objections: lead.objections, promises_made: lead.promises_made, suggested_followup: lead.suggested_followup, suggested_followup_date: suggestedFollowupDate, raw_transcript: conversation }).select().single();
     if (leadError) throw leadError;
     const completedUpdate = progressAvailable ? { status: "completed", progress: 100, progress_message: "Completed" } : { status: "completed" };
     await supabase.from("uploads").update(completedUpdate).eq("id", upload.id).eq("user_id", user.id);

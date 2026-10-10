@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:05:00+05:30 — Keep founder voice notes out of client identity
+
+- Changed: Added sender-aware voice-note annotations, founder identity detection from the signed-in profile, safe client-name fallback, and persistence for the extracted context fields in `src/app/api/process/route.ts`.
+- Why: A founder's sent voice note can mention or repeat the founder's name, which could cause the AI to create a lead for the wrong person. Only client-side authors and received voice notes should establish the lead identity.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Correct sender direction depends on the signed-in profile matching the founder name in the WhatsApp export; when no reliable client author is available, the lead is named `WhatsApp contact`.
+
 ## 2026-10-11T03:35:00+05:30 — Extract holistic client context
 
 - Changed: Expanded AI extraction beyond price/features to identify business need, client concerns or feeling, buying signals, sentiment, and evidence-based next steps. Price-only remains one narrow pattern; meaningful requirements, documents, use-cases, constraints, and commitments are treated as engaged evaluation. Added lead-context fields, migration SQL, and detail-view display.

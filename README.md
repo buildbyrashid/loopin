@@ -36,7 +36,7 @@ The project starts from the official Next.js App Router starter, generated with 
 - **Working demo:** Run the app locally using the commands below. The UI includes the Loopin landing page, auth screens, follow-up dashboard, leads pipeline, lead details, settings, and a protected admin console.
 - **Technology stack:** Next.js 16.4.0 App Router, React 19, TypeScript, Tailwind CSS 4, Supabase SSR, OpenAI, JSZip, Zod, React Hook Form, Sonner.
 
-The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run. WhatsApp imports accept standard and custom `.txt` chat filenames, then validate that the file contains readable WhatsApp messages; voice-note transcription requires the corresponding audio files to be included in the ZIP. Tailwind is compiled through the standard PostCSS adapter so production builds include the same utility styles as local development.
+The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run. WhatsApp imports accept standard and custom `.txt` chat filenames, then validate that the file contains readable WhatsApp messages; voice-note transcription requires the corresponding audio files to be included in the ZIP. Processing marks voice notes as founder-sent or client-received using the signed-in profile so founder audio does not become the client identity. Tailwind is compiled through the standard PostCSS adapter so production builds include the same utility styles as local development.
 
 ### Run the project
 
@@ -60,7 +60,7 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, concurrent voice-note transcription with persisted progress, holistic business-context extraction (need, concerns, buying signals, and sentiment), OpenAI processing route with engagement classification and follow-up date defaults, follow-up dashboard with reasons and date groups, leads pipeline, lead detail editor, settings, protected admin console, structured API diagnostics, and custom error/404 pages.
+- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, concurrent voice-note transcription with persisted progress, sender-aware founder/client voice-note handling, holistic business-context extraction (need, concerns, buying signals, and sentiment), OpenAI processing route with engagement classification and follow-up date defaults, follow-up dashboard with reasons and date groups, leads pipeline, lead detail editor, settings, protected admin console, structured API diagnostics, and custom error/404 pages.
 - Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. Workspace pages show an empty state until the signed-in user imports or creates leads; the landing page still contains illustrative preview cards.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
