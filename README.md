@@ -60,7 +60,7 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Loopin landing/upload UI, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
+- Working features: Responsive Loopin landing/upload UI with sign-in gating, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
 - Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. Workspace pages show an empty state until the signed-in user imports or creates leads; the landing page still contains illustrative preview cards.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
