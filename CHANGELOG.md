@@ -4,10 +4,17 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T05:42:00+05:30 — Translate Malayalam voice notes into English
+
+- Changed: Switched the default voice-note path from original-language transcription to OpenAI English translation for Malayalam and mixed Malayalam-English audio. Added `WHATSAPP_TRANSCRIPTION_MODE=transcribe` for users who need the original spoken language.
+- Why: The founder needs English voice-note text for a fast, consistent CRM overview while preserving names, prices, and business terms.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Translation still depends on audio quality, accents, overlapping speech, and whether the voice note is understandable.
+
 ## 2026-10-11T05:20:00+05:30 — Improve Malayalam and English voice transcription
 
 - Changed: Whisper transcription now defaults to Malayalam (`ml`), preserves Malayalam script and mixed English terms through a transcription prompt, and supports `WHATSAPP_TRANSCRIPTION_LANGUAGE=auto` when exports use another primary language.
-- Why: The supplied WhatsApp voice notes are mainly Malayalam with English names and business terms; an explicit language hint improves recognition and prevents unwanted translation.
+- Why: The supplied WhatsApp voice notes are mainly Malayalam with English names and business terms; an explicit language hint improves recognition before the later English-translation mode was requested.
 - Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
 - Limitations: Recognition still depends on audio quality, accents, overlapping speech, and whether the voice note is understandable.
 
