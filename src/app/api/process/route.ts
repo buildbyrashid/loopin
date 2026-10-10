@@ -167,6 +167,7 @@ export async function POST(request: Request) {
     uploadId = body.uploadId;
     const { data: upload } = await supabase.from("uploads").select("id").eq("id", uploadId).eq("user_id", user.id).single();
     if (!upload) return jsonError("Upload not found.", "NOT_FOUND", 404, { requestId });
+    const storagePath = `${user.id}/${upload.id}.zip`;
     let progressAvailable = true;
     const updateProgress = async (progress: number, progressMessage: string) => {
       if (!progressAvailable) return;
@@ -177,7 +178,7 @@ export async function POST(request: Request) {
       }
     };
     await updateProgress(5, "Downloading your export...");
-    const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(`${user.id}/${upload.id}.zip`);
+    const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(storagePath);
     if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500, { requestId, hint: downloadError?.message });
     const zip = await JSZip.loadAsync(await file.arrayBuffer());
     const chat = await findWhatsAppChat(zip);
@@ -269,6 +270,10 @@ export async function POST(request: Request) {
     if (leadError) throw leadError;
     const completedUpdate = progressAvailable ? { status: "completed", progress: 100, progress_message: "Completed" } : { status: "completed" };
     await supabase.from("uploads").update(completedUpdate).eq("id", upload.id).eq("user_id", user.id);
+    const { error: cleanupError } = await supabase.storage.from("whatsapp-exports").remove([storagePath]);
+    if (cleanupError) {
+      console.warn("Processed ZIP cleanup failed", { requestId, userId, uploadId, storagePath, error: cleanupError.message });
+    }
     return jsonSuccess({ uploadId: upload.id, leads: [savedLead] });
   } catch (error) {
     const message = errorMessage(error, "Processing failed; please retry this upload.");
