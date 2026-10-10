@@ -17,7 +17,7 @@ Participate solo or in a team of up to 4. Remove unused rows.
 
 | Participant name | GitHub handle | Contribution |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Mohammed Rashid | buildbyrashid | Project setup and documentation |
 
 ## Run and demonstrate
 

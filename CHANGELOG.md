@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T23:04:57+05:30 — Record solo participant
+
+- Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.
+- Why: Make project and submission records reflect the solo participant details.
+- Validation: Reviewed the documentation diff; no application checks run.
+- Limitations: Repository URL and final submitted commit remain to be filled in later.
+
 ## 2026-10-10T23:01:01+05:30 — Add Loopin project details
 
 - Changed: Replaced generic starter copy with Loopin's purpose and human-led messaging policy. Updated project overview, planned stack and integrations, run/demo details, and submission description. Marked proposed integrations as planned rather than implemented.

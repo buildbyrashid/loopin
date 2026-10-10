@@ -32,7 +32,7 @@ The project starts from the official Next.js App Router starter, generated with 
 
 - **Project name:** Loopin
 - **Short description:** Helps founders keep up with WhatsApp leads by turning exported conversations and voice notes into lead summaries and follow-up reminders, while keeping all sales replies human-led.
-- **Team:** TODO — participant names and GitHub handles; maximum 4 members.
+- **Team:** Solo — Mohammed Rashid ([buildbyrashid](https://github.com/buildbyrashid)); GitHub email: mhdrashid142@gmail.com.
 - **Working demo:** Run the starter locally using the commands below. The product workflow is not implemented yet.
 - **Technology stack:** Next.js 16.4.0, React 19, TypeScript, Tailwind CSS 4, ESLint.
 
