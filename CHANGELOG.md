@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:25:00+05:30 — Show saved voice transcriptions in the conversation
+
+- Changed: Lead details now render the saved chronological conversation and place each full voice-note transcription directly below its original WhatsApp attachment message in `src/components/lead-detail-view.tsx`.
+- Why: The transcript was already saved in `raw_transcript`, but the detail page always displayed a placeholder instead of the saved content.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Leads processed before sender-aware transcription was added must be reprocessed to populate their full voice-note text.
+
 ## 2026-10-11T04:05:00+05:30 — Keep founder voice notes out of client identity
 
 - Changed: Added sender-aware voice-note annotations, founder identity detection from the signed-in profile, safe client-name fallback, and persistence for the extracted context fields in `src/app/api/process/route.ts`.
