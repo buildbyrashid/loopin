@@ -21,14 +21,14 @@ Participate solo or in a team of up to 4. Remove unused rows.
 
 ## Run and demonstrate
 
-- **Prerequisites and versions:** TODO
-- **Install command:** TODO
-- **Required environment variable names:** TODO — use a sanitized example file if needed.
-- **Start command:** TODO
-- **Demo walkthrough:** TODO — brief steps showing the implemented features.
-- **Checks performed and results:** TODO
-- **Known limitations or incomplete features:** TODO
-- **Libraries, APIs, and public datasets used:** TODO — link sources and record attribution where required.
+- **Prerequisites and versions:** Node.js 20.9 or newer; npm.
+- **Install command:** `npm ci --allow-remote=all`
+- **Required environment variable names:** None for the starter.
+- **Start command:** `npm run dev` (local development); `npm run build` then `npm run start` (production mode).
+- **Demo walkthrough:** Open the home page at <http://localhost:3000> to view the starter screen.
+- **Checks performed and results:** `npm ci --allow-remote=all --no-audit --no-fund`, `npm run lint`, `npm run typecheck`, and `npm run build` passed.
+- **Known limitations or incomplete features:** The product idea and application features have not been defined yet. The production build uses Webpack because this environment blocks Turbopack worker processes.
+- **Libraries, APIs, and public datasets used:** Next.js 16.4.0, React 19.3.0, TypeScript, Tailwind CSS 4, and ESLint. Starter source: [Next.js create-next-app documentation](https://nextjs.org/docs/app/api-reference/cli/create-next-app). No external API or public dataset is used.
 - **AI usage record:** [AI_USAGE.md](AI_USAGE.md)
 - **Development change log:** [CHANGELOG.md](CHANGELOG.md)
 

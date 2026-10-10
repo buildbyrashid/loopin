@@ -27,7 +27,7 @@ Keep your approved Luma QR code ready for entry, and bring your laptop and charg
 4. Record meaningful changes in [CHANGELOG.md](CHANGELOG.md) and your Codex usage in [AI_USAGE.md](AI_USAGE.md). Commit after completed milestones; aim for a meaningful checkpoint about every 30 minutes.
 5. Complete [SUBMISSION.md](SUBMISSION.md) with your code repository, short project description, and working demo. Follow submission instructions announced by the organizers.
 
-This template has no application code or required technology stack. The documentation and commit cadence are repository workflow guidance; the event participation rules are in [RULES.md](RULES.md).
+The project starts from the official Next.js App Router starter, generated with `create-next-app`. The documentation and commit cadence are repository workflow guidance; the event participation rules are in [RULES.md](RULES.md).
 
 ## Project overview — complete during the event
 
@@ -35,22 +35,32 @@ This template has no application code or required technology stack. The document
 - **Short description:** TODO — what it does, who it helps, and why it matters.
 - **Team:** TODO — participant names and GitHub handles; maximum 4 members.
 - **Working demo:** TODO — link or local demo instructions.
-- **Technology stack:** TODO
+- **Technology stack:** Next.js 16.4.0, React 19, TypeScript, Tailwind CSS 4, ESLint.
 
 ### Run the project
 
-Replace these placeholders with commands that actually work for your project:
+Prerequisites: Node.js 20.9 or newer and npm.
 
-1. Prerequisites and versions: TODO
-2. Dependency installation: TODO
-3. Environment setup: TODO — list required variable names and provide a sanitized `.env.example` if needed.
-4. Start the project: TODO
-5. Run checks or tests: TODO
+```powershell
+npm ci --allow-remote=all
+npm run dev
+```
+
+Open <http://localhost:3000>. No environment variables are required for the starter. The flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
+
+Run the project checks and production server with:
+
+```powershell
+npm run lint
+npm run typecheck
+npm run build
+npm run start
+```
 
 ### Current status
 
-- Working features: TODO
-- Known limitations: TODO
-- Libraries, APIs, and public datasets used: TODO — include source links and applicable attribution.
+- Working features: Responsive Next.js starter page and production build scripts.
+- Known limitations: The project idea and product features are not defined yet.
+- Libraries, APIs, and public datasets used: Next.js starter generated with [create-next-app](https://nextjs.org/docs/app/api-reference/cli/create-next-app); Next.js, React, TypeScript, Tailwind CSS, and ESLint. No external APIs or datasets.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

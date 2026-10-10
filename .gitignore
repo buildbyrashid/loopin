@@ -9,9 +9,12 @@
 # Common dependencies, build output, caches, and local tooling.
 node_modules/
 .next/
+out/
+.vercel/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 .venv/
 venv/
 __pycache__/
