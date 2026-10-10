@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:16:00+05:30 — Accept standard WhatsApp chat filenames and audio attachments
+
+- Changed: Accepted both `chat.txt` and `_chat.txt` in upload and processing routes, recognized standard `(file attached)` message filenames, and restricted transcription attempts to audio extensions.
+- Why: A valid WhatsApp export with `chat.txt` was rejected because the parser only accepted `_chat.txt`; this also prepares full media exports for voice-note processing.
+- Validation: TypeScript, ESLint, diff check, production Webpack build, and the supplied ZIP structure were checked.
+- Limitations: The supplied ZIP has no audio binaries, so voice transcription cannot be verified against that archive.
+
 ## 2026-10-11T02:07:00+05:30 — Show the current workspace account
 
 - Changed: Replaced the hardcoded workspace sidebar founder label with the authenticated profile name, initials, and Admin or Client role label.

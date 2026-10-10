@@ -48,10 +48,10 @@ export async function POST(request: Request) {
     const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(`${user.id}/${upload.id}.zip`);
     if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500);
     const zip = await JSZip.loadAsync(await file.arrayBuffer());
-    const chatFile = zip.file(/(^|\/)\_chat\.txt$/i)[0];
-    if (!chatFile) return jsonError("The WhatsApp chat text is missing.", "INVALID_EXPORT", 400);
+    const chatFile = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
+    if (!chatFile) return jsonError("The WhatsApp chat.txt or _chat.txt file is missing.", "INVALID_EXPORT", 400);
     const messages = parseWhatsAppChat(await chatFile.async("string"));
-    const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => Boolean(name));
+    const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav|aac|amr|3gp)$/i.test(name));
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const transcripts: Record<string, string> = {};
     for (const voiceName of voiceNames) {

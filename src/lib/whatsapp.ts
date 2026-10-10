@@ -8,7 +8,7 @@ export function parseWhatsAppChat(contents: string) {
     const match = line.match(messageStart);
     if (match) {
       const [, date, time, sender, text] = match;
-      const attachment = text.match(/<attached:\s*([^>]+)>/i)?.[1];
+      const attachment = text.match(/<attached:\s*([^>]+)>/i)?.[1] ?? text.match(/^(.+?)\s+\((?:file\s+)?attached\)$/i)?.[1];
       messages.push({ date: `${date} ${time}`, sender: sender.trim(), text: text.trim(), attachment });
     } else if (messages.length) {
       messages[messages.length - 1].text += `\n${line}`;

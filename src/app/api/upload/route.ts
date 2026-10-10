@@ -17,8 +17,8 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(bytes);
-    const chat = zip.file(/(^|\/)\_chat\.txt$/i)[0];
-    if (!chat) return jsonError("This archive does not contain WhatsApp's _chat.txt export.", "INVALID_EXPORT", 400);
+    const chat = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
+    if (!chat) return jsonError("This archive does not contain a WhatsApp chat.txt or _chat.txt export.", "INVALID_EXPORT", 400);
     const messages = parseWhatsAppChat(await chat.async("string"));
     if (!messages.length) return jsonError("We could not find readable messages in this export.", "INVALID_EXPORT", 400);
 

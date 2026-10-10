@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T02:16:00+05:30 | Codex | Make WhatsApp import compatible with standard exports | Updated chat filename detection, attachment parsing, audio filtering, and import documentation in `src/lib/whatsapp.ts`, `src/app/api/upload/route.ts`, and `src/app/api/process/route.ts`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed; the supplied archive has no audio binaries for end-to-end transcription validation. |
+
 | 2026-10-11T02:07:00+05:30 | Codex | Make the workspace identity user-specific | Replaced the hardcoded sidebar founder identity with authenticated profile name, initials, and Admin or Client role data in `src/components/app-shell.tsx`; updated setup documentation. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
 
 | 2026-10-11T02:04:18+05:30 | Codex | Fix Google account selection and signed-in landing header | Added the Google `select_account` OAuth parameter and role-aware profile loading in `src/components/auth-form.tsx` and `src/app/page.tsx`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed; Google provider configuration remains external. |
