@@ -5,7 +5,7 @@ import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api
 import { createClient } from "@/lib/supabase/server";
 import { findWhatsAppChat, formatConversation } from "@/lib/whatsapp";
 
-const extractionSchema = z.object({ name: z.string().min(1), phone: z.string().nullable().optional(), status: z.enum(["hot", "warm", "cold"]), priority: z.enum(["high", "low", "unclear"]).optional(), engagement_pattern: z.enum(["price_only", "engaged_evaluating", "unclear"]), engagement_reason: z.string().min(1).max(500).optional(), summary: z.string(), objections: z.string(), promises_made: z.string(), suggested_followup: z.string(), suggested_followup_date: z.string().nullable().optional() });
+const extractionSchema = z.object({ name: z.string().min(1), phone: z.string().nullable().optional(), status: z.enum(["hot", "warm", "cold"]), priority: z.enum(["high", "low", "unclear"]).optional(), engagement_pattern: z.enum(["price_only", "engaged_evaluating", "unclear"]), engagement_reason: z.string().min(1).max(500).optional(), summary: z.string(), business_need: z.string(), client_concerns: z.string(), buying_signals: z.string(), client_sentiment: z.enum(["positive", "neutral", "concerned", "negative", "mixed", "unclear"]), objections: z.string(), promises_made: z.string(), suggested_followup: z.string(), suggested_followup_date: z.string().nullable().optional() });
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -19,6 +19,7 @@ function normalizeExtraction(payload: unknown) {
   const engagementPattern = ["price_only", "engaged_evaluating", "unclear"].includes(String(data.engagement_pattern)) ? data.engagement_pattern as "price_only" | "engaged_evaluating" | "unclear" : "unclear";
   const status = ["hot", "warm", "cold"].includes(String(data.status)) ? data.status as "hot" | "warm" | "cold" : "warm";
   const priority = ["high", "low", "unclear"].includes(String(data.priority)) ? data.priority as "high" | "low" | "unclear" : undefined;
+  const clientSentiment = ["positive", "neutral", "concerned", "negative", "mixed", "unclear"].includes(String(data.client_sentiment)) ? data.client_sentiment as "positive" | "neutral" | "concerned" | "negative" | "mixed" | "unclear" : "unclear";
   const phone = typeof data.phone === "string" && data.phone.trim() ? data.phone.trim() : null;
   const suggestedFollowupDate = typeof data.suggested_followup_date === "string" && data.suggested_followup_date.trim() ? data.suggested_followup_date.trim() : null;
   return {
@@ -26,6 +27,10 @@ function normalizeExtraction(payload: unknown) {
     engagement_pattern: engagementPattern,
     engagement_reason: text("engagement_reason", engagementPattern === "price_only" ? "Asked for price or details and did not continue the conversation." : engagementPattern === "engaged_evaluating" ? "Discussed the offer with follow-up questions or concerns." : "There is not enough conversation to classify engagement yet."),
     summary: text("summary", "Conversation imported from WhatsApp."),
+    business_need: text("business_need", "No clear business need captured yet."),
+    client_concerns: text("client_concerns", "No clear concern captured yet."),
+    buying_signals: text("buying_signals", "No clear buying signal captured yet."),
+    client_sentiment: clientSentiment,
     objections: text("objections", "None captured yet."),
     promises_made: text("promises_made", "None captured yet."),
     suggested_followup: text("suggested_followup", "Review this conversation and decide on the next follow-up."),
@@ -33,12 +38,14 @@ function normalizeExtraction(payload: unknown) {
   };
 }
 
-const classificationPrompt = `Extract one sales lead from a WhatsApp conversation. Classify engagement_pattern using these rules exactly:
+const classificationPrompt = `Understand the complete WhatsApp conversation before creating one sales lead. Transcribe and use voice-note content. Treat shared documents, images, audio, requirements, constraints, timelines, and emotional cues as evidence of the client's business context. Classify engagement_pattern using these rules exactly:
 1. price_only: the client asked for price or basic details but did not ask about features, use-cases, or doubts, then went silent after receiving the price. Set priority to low.
 2. engaged_evaluating: the client discussed price and also asked follow-up questions about features or use-cases, or raised concerns. Genuine back-and-forth or a soft commitment such as “I will confirm in 1-2 days”, “I need to discuss with my partner”, or “I will check and get back” means engaged_evaluating. Set priority to high.
 3. unclear: there is not enough conversation to classify. Set priority to unclear.
 
-Return JSON fields: name, phone, status (hot/warm/cold), priority (high/low/unclear), engagement_pattern (price_only/engaged_evaluating/unclear), engagement_reason (one concise sentence citing evidence from the conversation), summary, objections, promises_made, suggested_followup, suggested_followup_date.
+Price and feature questions are only examples, not requirements. A conversation is engaged_evaluating when the client shares a business need, requirements, use-case, workflow, constraints, documents, questions, concerns, comparisons, or a soft commitment and there is evidence of real evaluation. Price is optional. Use unclear only for greetings, isolated attachments, or too little interpretable content to identify a need, concern, or next step. First extract the client's business need, concerns or emotional state, buying signals, and overall sentiment. Separate facts from assumptions and write "Not stated" when evidence is missing. Make the suggested follow-up respond to the actual need or concern, not a generic price check-in.
+
+Return JSON fields: name, phone, status (hot/warm/cold), priority (high/low/unclear), engagement_pattern (price_only/engaged_evaluating/unclear), engagement_reason (one concise sentence citing evidence from the conversation), summary, business_need, client_concerns, buying_signals, client_sentiment (positive/neutral/concerned/negative/mixed/unclear), objections, promises_made, suggested_followup, suggested_followup_date.
 For suggested_followup_date, return an exact ISO date in YYYY-MM-DD when the client gave a timeframe. If engaged_evaluating has no explicit timeframe, return null; if price_only has no explicit timeframe, return null; if unclear, return null. Never invent facts. Return structured output in English.`;
 
 function dateAfterDays(days: number) {

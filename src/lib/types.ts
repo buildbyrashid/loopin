@@ -1,6 +1,7 @@
 export type LeadStatus = "hot" | "warm" | "cold" | "won" | "lost";
 export type LeadPriority = "high" | "low" | "unclear";
 export type EngagementPattern = "price_only" | "engaged_evaluating" | "unclear";
+export type ClientSentiment = "positive" | "neutral" | "concerned" | "negative" | "mixed" | "unclear";
 
 export type Lead = {
   id: string;
@@ -11,6 +12,10 @@ export type Lead = {
   engagementPattern?: EngagementPattern;
   engagementReason?: string;
   summary: string;
+  businessNeed?: string;
+  clientConcerns?: string;
+  buyingSignals?: string;
+  clientSentiment?: ClientSentiment;
   objections?: string;
   promisesMade?: string;
   suggestedFollowup: string;

@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T03:35:00+05:30 — Extract holistic client context
+
+- Changed: Expanded AI extraction beyond price/features to identify business need, client concerns or feeling, buying signals, sentiment, and evidence-based next steps. Price-only remains one narrow pattern; meaningful requirements, documents, use-cases, constraints, and commitments are treated as engaged evaluation. Added lead-context fields, migration SQL, and detail-view display.
+- Why: Create useful leads from the client’s actual business conversation instead of reducing every chat to a price or feature question.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: The quality of context depends on the transcript and the clarity of the client’s messages or voice notes; unsupported or silent content is marked as not stated.
+
 ## 2026-10-11T03:12:00+05:30 — Show processing progress and reduce transcription wait
 
 - Changed: Added persisted upload progress fields and a progress endpoint, displayed live upload/voice-note/AI stages with percentages on the landing page, and transcribed voice notes with four concurrent OpenAI requests instead of one at a time. Added the existing-project migration in `supabase/add-upload-progress.sql`.

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Lead, LeadPriority, LeadStatus, EngagementPattern } from "@/lib/types";
+import type { Lead, LeadPriority, LeadStatus, EngagementPattern, ClientSentiment } from "@/lib/types";
 
 type LeadRow = {
   id: string;
@@ -10,6 +10,10 @@ type LeadRow = {
   engagement_pattern: string | null;
   engagement_reason: string | null;
   summary: string | null;
+  business_need: string | null;
+  client_concerns: string | null;
+  buying_signals: string | null;
+  client_sentiment: string | null;
   objections: string | null;
   promises_made: string | null;
   suggested_followup: string | null;
@@ -22,6 +26,7 @@ type LeadRow = {
 const toStatus = (value: string): LeadStatus => ["hot", "warm", "cold", "won", "lost"].includes(value) ? value as LeadStatus : "warm";
 const toPriority = (value: string | null): LeadPriority => ["high", "low", "unclear"].includes(value ?? "") ? value as LeadPriority : "unclear";
 const toEngagement = (value: string | null): EngagementPattern | undefined => ["price_only", "engaged_evaluating", "unclear"].includes(value ?? "") ? value as EngagementPattern : undefined;
+const toSentiment = (value: string | null): ClientSentiment => ["positive", "neutral", "concerned", "negative", "mixed", "unclear"].includes(value ?? "") ? value as ClientSentiment : "unclear";
 
 function displayDate(value: string | null) {
   if (!value) return "";
@@ -45,6 +50,10 @@ export function mapLead(row: LeadRow): Lead {
     engagementPattern: toEngagement(row.engagement_pattern),
     engagementReason: row.engagement_reason ?? undefined,
     summary: row.summary ?? "No summary available yet.",
+    businessNeed: row.business_need ?? undefined,
+    clientConcerns: row.client_concerns ?? undefined,
+    buyingSignals: row.buying_signals ?? undefined,
+    clientSentiment: toSentiment(row.client_sentiment),
     objections: row.objections ?? undefined,
     promisesMade: row.promises_made ?? undefined,
     suggestedFollowup: row.suggested_followup ?? "",
@@ -56,7 +65,7 @@ export function mapLead(row: LeadRow): Lead {
   };
 }
 
-const leadSelect = "id,name,phone,status,priority,engagement_pattern,engagement_reason,summary,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
+const leadSelect = "id,name,phone,status,priority,engagement_pattern,engagement_reason,summary,business_need,client_concerns,buying_signals,client_sentiment,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
 
 export async function getCurrentUserRole() {
   const supabase = await createClient();
