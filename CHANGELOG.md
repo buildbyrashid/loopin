@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:52:00+05:30 — Use Webpack for local development
+
+- Changed: Updated `npm run dev` to use `next dev --webpack`.
+- Why: The default Turbopack worker crashes with an access-denied error on this Windows environment while compiling the global CSS; the Webpack dev server renders the app correctly.
+- Validation: Local signup page and the production-compatible CSS rendering were verified with Webpack mode.
+- Limitations: Turbopack remains available through the direct Next command but is not the project's default development mode.
+
 ## 2026-10-11T00:46:30+05:30 — Verify local auth configuration
 
 - Changed: Corrected the local Supabase URL from an accidentally duplicated anon JWT, added visible Google OAuth error handling, and documented the required Supabase URL/key distinction and Google provider setup.

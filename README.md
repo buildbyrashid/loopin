@@ -47,7 +47,7 @@ npm ci --allow-remote=all
 npm run dev
 ```
 
-Open <http://localhost:3000>. Copy `.env.local.example` to `.env.local` and fill the values before using authentication or processing. The install flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
+Open <http://localhost:3000>. Copy `.env.local.example` to `.env.local` and fill the values before using authentication or processing. Development and production use Next.js's Webpack mode for compatibility with constrained worker environments.
 
 Run the project checks and production server with:
 
