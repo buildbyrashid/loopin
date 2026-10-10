@@ -63,6 +63,16 @@ function archiveEntries(zip: JSZip) {
   return entries.length > 40 ? [...entries.slice(0, 40), `...and ${entries.length - 40} more`] : entries;
 }
 
+function transcriptionFileName(name: string) {
+  const baseName = name.split(/[\\/]/).pop() || "voice-note";
+  return baseName.replace(/\.opus$/i, ".ogg");
+}
+
+function transcriptionMimeType(name: string) {
+  const extension = name.toLowerCase().split(".").pop();
+  return extension === "ogg" || extension === "opus" ? "audio/ogg" : undefined;
+}
+
 export async function POST(request: Request) {
   const requestId = createRequestId();
   let userId = "unknown";
@@ -92,7 +102,7 @@ export async function POST(request: Request) {
       return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The ZIP must contain a .txt file with WhatsApp messages. Custom filenames are supported.", entries });
     }
     const { messages } = chat;
-    const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav|aac|amr|3gp)$/i.test(name));
+    const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav)$/i.test(name));
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const transcripts: Record<string, string> = {};
     for (const voiceName of voiceNames) {
@@ -100,8 +110,14 @@ export async function POST(request: Request) {
       const voice = zip.file(new RegExp(`${escaped}$`, "i"))[0];
       if (!voice) continue;
       const buffer = Buffer.from(await voice.async("nodebuffer"));
-      const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, voiceName), model: "whisper-1" });
-      transcripts[voiceName] = transcription.text;
+      const uploadName = transcriptionFileName(voiceName);
+      try {
+        const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, uploadName, { type: transcriptionMimeType(uploadName) }), model: "whisper-1" });
+        transcripts[voiceName] = transcription.text;
+      } catch (error) {
+        console.error("Voice transcription failed", { requestId, userId, uploadId, voiceName, error });
+        transcripts[voiceName] = "unavailable";
+      }
     }
     const conversation = formatConversation(messages).replace(/<attached:\s*([^>]+)>/gi, (_, name: string) => `[Voice note transcript: ${transcripts[name.trim()] ?? "unavailable"}]`);
     const todayIso = new Date().toISOString().slice(0, 10);

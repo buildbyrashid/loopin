@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:58:00+05:30 — Normalize WhatsApp Opus voice notes for Whisper
+
+- Changed: Relabeled WhatsApp `.opus` Ogg containers as `.ogg` with the correct MIME type before sending them to OpenAI, restricted automatic transcription to formats accepted by the endpoint, and let one failed voice note remain unavailable without aborting the whole conversation.
+- Why: OpenAI rejected the valid WhatsApp voice file because `.opus` is not one of the endpoint’s accepted filename extensions, even though the file bytes use the Ogg container.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Voice transcription still requires a configured OpenAI key and may take time for exports with many voice notes.
+
 ## 2026-10-11T02:46:00+05:30 — Accept custom WhatsApp chat filenames
 
 - Changed: Scan `.txt` files inside uploaded ZIPs, prioritize `chat.txt`/`_chat.txt`, and accept custom names such as `WhatsApp Chat with Dipin Aicura.txt` when they contain readable WhatsApp messages. Updated the upload and processing diagnostics and README.
