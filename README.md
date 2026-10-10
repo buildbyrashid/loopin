@@ -36,7 +36,7 @@ The project starts from the official Next.js App Router starter, generated with 
 - **Working demo:** Run the app locally using the commands below. The UI includes the Loopin landing page, auth screens, follow-up dashboard, leads pipeline, lead details, and settings.
 - **Technology stack:** Next.js 16.4.0 App Router, React 19, TypeScript, Tailwind CSS 4, Supabase SSR, OpenAI, JSZip, Zod, React Hook Form, Sonner.
 
-The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run.
+The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run. Tailwind is compiled through the standard PostCSS adapter so production builds include the same utility styles as local development.
 
 ### Run the project
 

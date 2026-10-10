@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:24:24+05:30 — Fix production CSS bundle
+
+- Changed: Added Tailwind's PostCSS adapter and production stylesheet configuration.
+- Why: The deployed Webpack build emitted Tailwind's base styles but omitted utility classes, leaving the production page unstyled while development remained styled through Turbopack.
+- Validation: `node node_modules/typescript/bin/tsc --noEmit`, ESLint, and `next build --webpack` passed; the generated CSS now contains utility selectors.
+- Limitations: Visual verification was performed against the deployed page and local production build; external service behavior remains credential-dependent.
+
 ## 2026-10-11T00:07:22+05:30 — Verify upload processing foundation
 
 - Changed: Connected the landing upload control to the API, added WhatsApp message parsing and private export storage, implemented the Whisper/GPT processing path with schema validation, and fixed dynamic lead-route prerendering.
