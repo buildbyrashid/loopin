@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T03:12:00+05:30 | Codex | Add live processing progress and concurrent transcription | Added `uploads.progress` fields and status polling, a progress UI, and bounded four-at-a-time voice transcription in `src/app/api/process/route.ts`, `src/app/api/upload/status/route.ts`, `src/app/page.tsx`, and Supabase migration docs. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
+
 | 2026-10-11T02:58:00+05:30 | Codex | Normalize WhatsApp Opus voice notes | Confirmed the supplied voice file begins with the Ogg container signature, then updated `src/app/api/process/route.ts` to send `.opus` bytes as supported `.ogg` audio and continue when an individual note fails. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
 
 | 2026-10-11T02:46:00+05:30 | Codex | Accept custom WhatsApp chat filenames | Added ZIP text-file discovery and readable-message validation so media exports with names such as `WhatsApp Chat with Dipin Aicura.txt` can reach processing; updated upload/process routes and README. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |

@@ -35,6 +35,8 @@ create table if not exists public.uploads (
   user_id uuid not null references public.profiles(id) on delete cascade,
   file_name text not null,
   status text not null default 'processing' check (status in ('processing', 'completed', 'failed')),
+  progress integer not null default 0 check (progress between 0 and 100),
+  progress_message text,
   error_message text,
   created_at timestamptz not null default now()
 );

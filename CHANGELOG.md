@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T03:12:00+05:30 — Show processing progress and reduce transcription wait
+
+- Changed: Added persisted upload progress fields and a progress endpoint, displayed live upload/voice-note/AI stages with percentages on the landing page, and transcribed voice notes with four concurrent OpenAI requests instead of one at a time. Added the existing-project migration in `supabase/add-upload-progress.sql`.
+- Why: The upload completed quickly but sequential transcription made large exports appear stuck for several minutes.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Processing time still depends on the number and duration of voice notes and OpenAI response time; run the progress migration for live percentage updates on an existing Supabase project.
+
 ## 2026-10-11T02:58:00+05:30 — Normalize WhatsApp Opus voice notes for Whisper
 
 - Changed: Relabeled WhatsApp `.opus` Ogg containers as `.ogg` with the correct MIME type before sending them to OpenAI, restricted automatic transcription to formats accepted by the endpoint, and let one failed voice note remain unavailable without aborting the whole conversation.

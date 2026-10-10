@@ -73,6 +73,17 @@ function transcriptionMimeType(name: string) {
   return extension === "ogg" || extension === "opus" ? "audio/ogg" : undefined;
 }
 
+async function forEachConcurrent<T>(items: T[], limit: number, worker: (item: T) => Promise<void>) {
+  let nextIndex = 0;
+  const workerCount = Math.min(limit, items.length);
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (nextIndex < items.length) {
+      const item = items[nextIndex++];
+      await worker(item);
+    }
+  }));
+}
+
 export async function POST(request: Request) {
   const requestId = createRequestId();
   let userId = "unknown";
@@ -81,6 +92,7 @@ export async function POST(request: Request) {
   try {
     supabase = await createClient();
     if (!supabase) return jsonError("Supabase is not configured.", "CONFIGURATION_ERROR", 503, { requestId });
+    const database = supabase;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return jsonError("Please sign in to continue.", "UNAUTHENTICATED", 401, { requestId });
     userId = user.id;
@@ -90,6 +102,16 @@ export async function POST(request: Request) {
     uploadId = body.uploadId;
     const { data: upload } = await supabase.from("uploads").select("id").eq("id", uploadId).eq("user_id", user.id).single();
     if (!upload) return jsonError("Upload not found.", "NOT_FOUND", 404, { requestId });
+    let progressAvailable = true;
+    const updateProgress = async (progress: number, progressMessage: string) => {
+      if (!progressAvailable) return;
+      const { error } = await database.from("uploads").update({ progress, progress_message: progressMessage }).eq("id", upload.id).eq("user_id", user.id);
+      if (error) {
+        progressAvailable = false;
+        console.warn("Upload progress columns are unavailable; run supabase/add-upload-progress.sql", { requestId, uploadId, error: error.message });
+      }
+    };
+    await updateProgress(5, "Downloading your export...");
     const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(`${user.id}/${upload.id}.zip`);
     if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500, { requestId, hint: downloadError?.message });
     const zip = await JSZip.loadAsync(await file.arrayBuffer());
@@ -102,23 +124,32 @@ export async function POST(request: Request) {
       return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The ZIP must contain a .txt file with WhatsApp messages. Custom filenames are supported.", entries });
     }
     const { messages } = chat;
-    const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav)$/i.test(name));
+    const voiceNames = [...new Set(messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav)$/i.test(name)))];
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const transcripts: Record<string, string> = {};
-    for (const voiceName of voiceNames) {
-      const escaped = voiceName.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
-      const voice = zip.file(new RegExp(`${escaped}$`, "i"))[0];
-      if (!voice) continue;
-      const buffer = Buffer.from(await voice.async("nodebuffer"));
-      const uploadName = transcriptionFileName(voiceName);
+    await updateProgress(10, voiceNames.length ? `Found ${voiceNames.length} voice notes...` : "Preparing conversation analysis...");
+    let completedVoiceNotes = 0;
+    await forEachConcurrent(voiceNames, 4, async (voiceName) => {
       try {
-        const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, uploadName, { type: transcriptionMimeType(uploadName) }), model: "whisper-1" });
-        transcripts[voiceName] = transcription.text;
-      } catch (error) {
-        console.error("Voice transcription failed", { requestId, userId, uploadId, voiceName, error });
-        transcripts[voiceName] = "unavailable";
+        const escaped = voiceName.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+        const voice = zip.file(new RegExp(`${escaped}$`, "i"))[0];
+        if (!voice) return;
+        const buffer = Buffer.from(await voice.async("nodebuffer"));
+        const uploadName = transcriptionFileName(voiceName);
+        try {
+          const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, uploadName, { type: transcriptionMimeType(uploadName) }), model: "whisper-1" });
+          transcripts[voiceName] = transcription.text;
+        } catch (error) {
+          console.error("Voice transcription failed", { requestId, userId, uploadId, voiceName, error });
+          transcripts[voiceName] = "unavailable";
+        }
+      } finally {
+        completedVoiceNotes += 1;
+        const voiceProgress = voiceNames.length ? 10 + Math.round((completedVoiceNotes / voiceNames.length) * 65) : 75;
+        await updateProgress(voiceProgress, voiceNames.length ? `Transcribing voice notes (${completedVoiceNotes}/${voiceNames.length})...` : "Preparing conversation analysis...");
       }
-    }
+    });
+    await updateProgress(80, "Analyzing conversation with AI...");
     const conversation = formatConversation(messages).replace(/<attached:\s*([^>]+)>/gi, (_, name: string) => `[Voice note transcript: ${transcripts[name.trim()] ?? "unavailable"}]`);
     const todayIso = new Date().toISOString().slice(0, 10);
     const response = await openai.chat.completions.create({ model: "gpt-4o-mini", response_format: { type: "json_object" }, messages: [{ role: "system", content: `${classificationPrompt}\nCurrent date for calculating explicit timeframes: ${todayIso}.` }, { role: "user", content: conversation }] });
@@ -136,7 +167,7 @@ export async function POST(request: Request) {
     const engagementReason = lead.engagement_reason?.trim() || (lead.engagement_pattern === "price_only" ? "Asked for price or details and did not continue the conversation." : lead.engagement_pattern === "engaged_evaluating" ? "Discussed the offer with follow-up questions or concerns." : "There is not enough conversation to classify engagement yet.");
     const { data: savedLead, error: leadError } = await supabase.from("leads").insert({ user_id: user.id, name: lead.name, phone: lead.phone, status: lead.status, priority, engagement_pattern: lead.engagement_pattern, engagement_reason: engagementReason, summary: lead.summary, objections: lead.objections, promises_made: lead.promises_made, suggested_followup: lead.suggested_followup, suggested_followup_date: suggestedFollowupDate, raw_transcript: conversation }).select().single();
     if (leadError) throw leadError;
-    await supabase.from("uploads").update({ status: "completed" }).eq("id", upload.id).eq("user_id", user.id);
+    await supabase.from("uploads").update({ status: "completed", progress: 100, progress_message: "Completed" }).eq("id", upload.id).eq("user_id", user.id);
     return jsonSuccess({ uploadId: upload.id, leads: [savedLead] });
   } catch (error) {
     const message = errorMessage(error, "Processing failed; please retry this upload.");
