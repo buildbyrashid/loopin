@@ -33,10 +33,10 @@ The project starts from the official Next.js App Router starter, generated with 
 - **Project name:** Loopin
 - **Short description:** Helps founders keep up with WhatsApp leads by turning exported conversations and voice notes into lead summaries and follow-up reminders, while keeping all sales replies human-led.
 - **Team:** Solo — Mohammed Rashid ([buildbyrashid](https://github.com/buildbyrashid)); GitHub email: mhdrashid142@gmail.com.
-- **Working demo:** Run the starter locally using the commands below. The product workflow is not implemented yet.
-- **Technology stack:** Next.js 16.4.0, React 19, TypeScript, Tailwind CSS 4, ESLint.
+- **Working demo:** Run the app locally using the commands below. The UI includes the Loopin landing page, auth screens, follow-up dashboard, leads pipeline, lead details, and settings.
+- **Technology stack:** Next.js 16.4.0 App Router, React 19, TypeScript, Tailwind CSS 4, Supabase SSR, OpenAI, JSZip, Zod, React Hook Form, Sonner.
 
-Planned integrations: Supabase Postgres and Storage, OpenAI Whisper and GPT, `jszip`, and Vercel deployment. These integrations are not implemented in the current starter.
+The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run.
 
 ### Run the project
 
@@ -47,7 +47,7 @@ npm ci --allow-remote=all
 npm run dev
 ```
 
-Open <http://localhost:3000>. No environment variables are required for the current starter. When the planned integrations are added, the expected variable names are `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY`; do not commit secret values. The install flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
+Open <http://localhost:3000>. Copy `.env.local.example` to `.env.local` and fill the values before using authentication or processing. The install flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
 
 Run the project checks and production server with:
 
@@ -60,8 +60,15 @@ npm run start
 
 ### Current status
 
-- Working features: Loopin project overview page and production build scripts.
-- Known limitations: WhatsApp ZIP parsing, voice-note transcription, GPT extraction, Supabase storage, follow-up reminders, lead views, and Vercel deployment are planned but not implemented.
-- Libraries, APIs, and public datasets used: Next.js starter generated with [create-next-app](https://nextjs.org/docs/app/api-reference/cli/create-next-app); current dependencies are Next.js, React, TypeScript, Tailwind CSS, and ESLint. No external API or dataset is currently used.
+- Working features: Responsive Loopin landing/upload UI, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, API error shapes, and custom error/404 pages.
+- Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. The dashboard uses preview lead data until the data-fetching layer is connected to a populated database.
+- Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
+
+### Supabase setup
+
+1. Create a Supabase project and enable Email/Password and Google providers under Authentication.
+2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor. This creates profiles, leads, uploads, the private `whatsapp-exports` bucket, and user-scoped RLS policies.
+3. Add the project URL and anon key to `.env.local`. Add an OpenAI key to enable Whisper/GPT processing.
+4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

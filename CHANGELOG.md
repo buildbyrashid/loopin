@@ -4,6 +4,20 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:07:22+05:30 — Verify upload processing foundation
+
+- Changed: Connected the landing upload control to the API, added WhatsApp message parsing and private export storage, implemented the Whisper/GPT processing path with schema validation, and fixed dynamic lead-route prerendering.
+- Why: Complete the first end-to-end foundation described in the build brief while keeping credentials outside the repository.
+- Validation: `npm run typecheck`, `npm run lint`, and `npm run build` passed. External Supabase/OpenAI calls were not run without credentials.
+- Limitations: Dashboard reads still use preview data; external integrations need a configured Supabase project and OpenAI key.
+
+## 2026-10-11T00:04:37+05:30 — Build Loopin production foundation
+
+- Changed: Added the UI kit-inspired landing/upload page, auth flows, protected route middleware, Supabase browser/server clients, profiles/leads/uploads schema with RLS and private storage bucket, upload/process/leads API routes, follow-up dashboard, leads pipeline, lead detail editor, settings, error/404 pages, shared types, environment example, and production dependencies.
+- Why: Turn the starter into the first production-ready Loopin application foundation described in the supplied build brief.
+- Validation: `npm run typecheck` and `npm run lint` passed.
+- Limitations: Supabase and OpenAI behavior requires credentials. Dashboard screens use preview data until database reads are connected.
+
 ## 2026-10-10T23:04:57+05:30 — Record solo participant
 
 - Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.

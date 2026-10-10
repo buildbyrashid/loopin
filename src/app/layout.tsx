@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { ToastProvider } from "@/components/toast-provider";
 
 export const metadata: Metadata = {
   title: "Loopin — WhatsApp lead follow-up",
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">{children}<ToastProvider /></body>
     </html>
   );
 }
