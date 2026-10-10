@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import { z } from "zod";
 import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
-import { formatConversation, parseWhatsAppChat } from "@/lib/whatsapp";
+import { findWhatsAppChat, formatConversation } from "@/lib/whatsapp";
 
 const extractionSchema = z.object({ name: z.string().min(1), phone: z.string().nullable().optional(), status: z.enum(["hot", "warm", "cold"]), priority: z.enum(["high", "low", "unclear"]).optional(), engagement_pattern: z.enum(["price_only", "engaged_evaluating", "unclear"]), engagement_reason: z.string().min(1).max(500).optional(), summary: z.string(), objections: z.string(), promises_made: z.string(), suggested_followup: z.string(), suggested_followup_date: z.string().nullable().optional() });
 
@@ -83,15 +83,15 @@ export async function POST(request: Request) {
     const { data: file, error: downloadError } = await supabase.storage.from("whatsapp-exports").download(`${user.id}/${upload.id}.zip`);
     if (downloadError || !file) return jsonError("The uploaded export is unavailable.", "STORAGE_ERROR", 500, { requestId, hint: downloadError?.message });
     const zip = await JSZip.loadAsync(await file.arrayBuffer());
-    const chatFile = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
-    if (!chatFile) {
+    const chat = await findWhatsAppChat(zip);
+    if (!chat) {
       const entries = archiveEntries(zip);
-      const message = "The WhatsApp chat.txt or _chat.txt file is missing.";
+      const message = "The archive does not contain a readable WhatsApp chat text export.";
       await supabase.from("uploads").update({ status: "failed", error_message: `[INVALID_EXPORT] ${message} Entries: ${entries.join(", ")}. Request: ${requestId}` }).eq("id", upload.id).eq("user_id", user.id);
       console.error("POST /api/process failed", { requestId, userId, uploadId, code: "INVALID_EXPORT", message, entries });
-      return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The upload must contain chat.txt or _chat.txt.", entries });
+      return jsonError(message, "INVALID_EXPORT", 400, { requestId, hint: "The ZIP must contain a .txt file with WhatsApp messages. Custom filenames are supported.", entries });
     }
-    const messages = parseWhatsAppChat(await chatFile.async("string"));
+    const { messages } = chat;
     const voiceNames = messages.map((message) => message.attachment).filter((name): name is string => typeof name === "string" && /\.(?:opus|ogg|m4a|mp3|wav|aac|amr|3gp)$/i.test(name));
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const transcripts: Record<string, string> = {};

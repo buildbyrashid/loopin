@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
-import { parseWhatsAppChat } from "@/lib/whatsapp";
+import { findWhatsAppChat } from "@/lib/whatsapp";
 
 const MAX_SIZE = 25 * 1024 * 1024;
 
@@ -51,10 +51,9 @@ export async function POST(request: Request) {
       return fail(`The ZIP archive could not be opened: ${errorMessage(error, "invalid ZIP archive")}.`, "INVALID_EXPORT", 400);
     }
     const entries = archiveEntries(zip);
-    const chat = zip.file(/(^|\/)(?:_chat|chat)\.txt$/i)[0];
-    if (!chat) return fail("This archive does not contain a WhatsApp chat.txt or _chat.txt export.", "INVALID_EXPORT", 400, { hint: "Export the chat from the WhatsApp mobile app and choose Include media. The ZIP must contain chat.txt or _chat.txt.", entries });
-    const messages = parseWhatsAppChat(await chat.async("string"));
-    if (!messages.length) return fail("We could not find readable messages in this export.", "INVALID_EXPORT", 400, { entries });
+    const chat = await findWhatsAppChat(zip);
+    if (!chat) return fail("This archive does not contain a readable WhatsApp chat text export.", "INVALID_EXPORT", 400, { hint: "The ZIP must contain a .txt file with WhatsApp messages. Custom names such as WhatsApp Chat with Dipin Aicura.txt are supported.", entries });
+    const { messages } = chat;
 
     const bytes = await file.arrayBuffer();
     const storagePath = `${user.id}/${upload.id}.zip`;

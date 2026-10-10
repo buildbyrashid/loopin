@@ -1,3 +1,5 @@
+import JSZip from "jszip";
+
 export type ChatMessage = { date: string; sender: string; text: string; attachment?: string };
 
 const messageStart = /^\[?(\d{1,4}[\/-]\d{1,2}[\/-]\d{1,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s?(?:am|pm)?)\]?\s[-–]?\s?([^:]+):\s([\s\S]*)$/i;
@@ -15,6 +17,22 @@ export function parseWhatsAppChat(contents: string) {
     }
   }
   return messages;
+}
+
+export async function findWhatsAppChat(zip: JSZip) {
+  const textFiles = Object.values(zip.files)
+    .filter((file) => !file.dir && /(^|\/)[^/]+\.txt$/i.test(file.name))
+    .sort((left, right) => {
+      const standard = (name: string) => /(^|\/)\_?chat\.txt$/i.test(name) ? 0 : 1;
+      return standard(left.name) - standard(right.name);
+    });
+
+  for (const file of textFiles) {
+    const contents = await file.async("string");
+    const messages = parseWhatsAppChat(contents);
+    if (messages.length) return { file, messages };
+  }
+  return null;
 }
 
 export function formatConversation(messages: ChatMessage[]) {

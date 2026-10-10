@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:46:00+05:30 — Accept custom WhatsApp chat filenames
+
+- Changed: Scan `.txt` files inside uploaded ZIPs, prioritize `chat.txt`/`_chat.txt`, and accept custom names such as `WhatsApp Chat with Dipin Aicura.txt` when they contain readable WhatsApp messages. Updated the upload and processing diagnostics and README.
+- Why: WhatsApp exports with media can use the chat name as the text filename; the previous exact-name check rejected valid archives before voice transcription.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: A `.txt` file must still contain parseable WhatsApp message lines; arbitrary text files remain invalid.
+
 ## 2026-10-11T02:34:49+05:30 — Add exact upload diagnostics
 
 - Changed: Added request IDs, structured error codes, safe archive-entry diagnostics, terminal/browser logging, and persisted `uploads.error_message` details for upload and processing failures. Invalid archives now create a failed upload record so the same cause is visible in the Admin → Uploads page and Supabase table.
