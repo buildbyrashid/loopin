@@ -62,7 +62,7 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## 2026-10-11T01:23:39+05:30 — Require sign-in before uploads
 
-- Changed: Added a client-side sign-in gate to the landing-page file picker and drop zone. Anonymous visitors are sent to login, while `/api/upload` and `/api/process` continue enforcing authentication server-side.
+- Changed: Kept the landing-page `Browse files` button visible for everyone, but added an authentication check before opening the picker or accepting a dropped file. Anonymous visitors are sent to login, while `/api/upload` and `/api/process` continue enforcing authentication server-side.
 - Why: Prevent visitors from selecting or attempting to upload WhatsApp exports before they have a private workspace.
 - Validation: TypeScript, ESLint, diff check, and `next build --webpack` passed.
 - Limitations: The landing page still shows illustrative example cards; those cards are not user data and cannot be uploaded.
