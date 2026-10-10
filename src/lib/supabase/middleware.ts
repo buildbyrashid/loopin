@@ -19,7 +19,7 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const protectedRoute = request.nextUrl.pathname.startsWith("/followups") || request.nextUrl.pathname.startsWith("/leads") || request.nextUrl.pathname.startsWith("/settings");
+  const protectedRoute = request.nextUrl.pathname.startsWith("/followups") || request.nextUrl.pathname.startsWith("/leads") || request.nextUrl.pathname.startsWith("/settings") || request.nextUrl.pathname.startsWith("/admin");
   if (protectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

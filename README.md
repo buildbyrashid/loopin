@@ -33,7 +33,7 @@ The project starts from the official Next.js App Router starter, generated with 
 - **Project name:** Loopin
 - **Short description:** Helps founders keep up with WhatsApp leads by turning exported conversations and voice notes into lead summaries and follow-up reminders, while keeping all sales replies human-led.
 - **Team:** Solo — Mohammed Rashid ([buildbyrashid](https://github.com/buildbyrashid)); GitHub email: mhdrashid142@gmail.com.
-- **Working demo:** Run the app locally using the commands below. The UI includes the Loopin landing page, auth screens, follow-up dashboard, leads pipeline, lead details, and settings.
+- **Working demo:** Run the app locally using the commands below. The UI includes the Loopin landing page, auth screens, follow-up dashboard, leads pipeline, lead details, settings, and a protected admin console.
 - **Technology stack:** Next.js 16.4.0 App Router, React 19, TypeScript, Tailwind CSS 4, Supabase SSR, OpenAI, JSZip, Zod, React Hook Form, Sonner.
 
 The Supabase schema and RLS policies live in [`supabase/schema.sql`](supabase/schema.sql). Supabase storage, Whisper transcription, and GPT extraction are wired in the API routes and require real credentials to run. Tailwind is compiled through the standard PostCSS adapter so production builds include the same utility styles as local development.
@@ -60,7 +60,7 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Loopin landing/upload UI, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, API error shapes, and custom error/404 pages.
+- Working features: Responsive Loopin landing/upload UI, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
 - Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. The dashboard uses preview lead data until the data-fetching layer is connected to a populated database.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
@@ -70,5 +70,16 @@ npm run start
 2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor. This creates profiles, leads, uploads, the private `whatsapp-exports` bucket, and user-scoped RLS policies.
 3. Set `NEXT_PUBLIC_SUPABASE_URL` to the project URL (`https://<project-ref>.supabase.co`) and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the anon JWT. Do not put a JWT in the URL field. Add an OpenAI key to enable Whisper/GPT processing.
 4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs and configure the same callback in the Google Cloud OAuth client.
+
+### Admin console setup
+
+The admin console is available at `/admin` and includes overview, users, leads, and uploads pages. Access is checked on the server against `profiles.role`; the service-role key is never sent to the browser.
+
+1. Apply [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor.
+2. Sign up in Loopin with the email account that should be the administrator and complete email verification if confirmation is enabled.
+3. Update the email in [`supabase/promote-admin.sql`](supabase/promote-admin.sql) if needed, then run that script in the SQL editor. The checked-in script is set to `mhdrashid142@gmail.com`.
+4. Sign out and sign back in, then open <http://localhost:3000/admin>. Non-admin profiles are redirected back to the workspace.
+
+The SQL script promotes an existing authenticated profile; it does not create a password or expose credentials in the repository.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

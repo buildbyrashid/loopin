@@ -39,6 +39,13 @@ Record each meaningful project change during the event, newest first. Update thi
 - Validation: `npm run typecheck` and `npm run lint` passed.
 - Limitations: Supabase and OpenAI behavior requires credentials. Dashboard screens use preview data until database reads are connected.
 
+## 2026-10-11T00:59:42+05:30 — Add protected admin console
+
+- Changed: Added server-side admin authorization, a service-role Supabase client, responsive admin navigation, overview/users/leads/uploads pages, admin promotion SQL, and `/admin` middleware protection. Updated README setup instructions.
+- Why: Provide a real operations surface for monitoring Loopin accounts and processing activity instead of returning a 404 at `/admin`.
+- Validation: `node node_modules/typescript/bin/tsc --noEmit`, `node node_modules/eslint/bin/eslint.js`, `git diff --check`, and `node node_modules/next/dist/bin/next build --webpack` passed. The production build reports all four admin routes as partial-prerendered.
+- Limitations: The Supabase schema must be applied, an account must sign up, and `supabase/promote-admin.sql` must be run before the first admin login. No admin password or credential was created by the code change.
+
 ## 2026-10-10T23:04:57+05:30 — Record solo participant
 
 - Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.
