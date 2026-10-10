@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import JSZip from "jszip";
+import { after } from "next/server";
 import { z } from "zod";
 import { createRequestId, errorMessage, jsonError, jsonSuccess } from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
@@ -270,10 +271,16 @@ export async function POST(request: Request) {
     if (leadError) throw leadError;
     const completedUpdate = progressAvailable ? { status: "completed", progress: 100, progress_message: "Completed" } : { status: "completed" };
     await supabase.from("uploads").update(completedUpdate).eq("id", upload.id).eq("user_id", user.id);
-    const { error: cleanupError } = await supabase.storage.from("whatsapp-exports").remove([storagePath]);
-    if (cleanupError) {
-      console.warn("Processed ZIP cleanup failed", { requestId, userId, uploadId, storagePath, error: cleanupError.message });
-    }
+    after(async () => {
+      try {
+        const { error: cleanupError } = await database.storage.from("whatsapp-exports").remove([storagePath]);
+        if (cleanupError) {
+          console.warn("Processed ZIP cleanup failed", { requestId, userId, uploadId, storagePath, error: cleanupError.message });
+        }
+      } catch (error) {
+        console.warn("Processed ZIP cleanup failed", { requestId, userId, uploadId, storagePath, error });
+      }
+    });
     return jsonSuccess({ uploadId: upload.id, leads: [savedLead] });
   } catch (error) {
     const message = errorMessage(error, "Processing failed; please retry this upload.");

@@ -6,7 +6,7 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## 2026-10-11T04:14:13+05:30 — Remove processed ZIPs from private storage
 
-- Changed: The processing route now removes the uploaded ZIP from the private `whatsapp-exports` bucket after the lead and completed upload status are saved. Upload history and derived lead data remain available, and cleanup failures are logged without discarding a successful result.
+- Changed: The processing route now schedules removal of the uploaded ZIP from the private `whatsapp-exports` bucket after the lead and completed upload status are saved. The success response returns without waiting for cleanup, so the user-facing toast is immediate. Upload history and derived lead data remain available, and cleanup failures are logged without discarding a successful result.
 - Why: Processed exports no longer need to consume Supabase Storage space while the upload record still provides useful audit and troubleshooting history.
 - Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
 - Limitations: Failed processing intentionally keeps the ZIP so the user can retry; existing completed uploads are not cleaned automatically by this change.
