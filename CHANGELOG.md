@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:07:00+05:30 — Show the current workspace account
+
+- Changed: Replaced the hardcoded workspace sidebar founder label with the authenticated profile name, initials, and Admin or Client role label.
+- Why: Prevent every workspace user from seeing the starter account name and make the active account clear.
+- Validation: TypeScript, ESLint, diff check, and the production Webpack build passed.
+- Limitations: The profile name comes from the Supabase profile or auth metadata and falls back to the email prefix when no name is available.
+
 ## 2026-10-11T02:04:18+05:30 — Fix Google account selection and signed-in header
 
 - Changed: Added the Google OAuth `select_account` prompt and made the landing header load the current Supabase profile name and role-aware destination.
