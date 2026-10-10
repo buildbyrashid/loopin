@@ -194,6 +194,8 @@ export async function POST(request: Request) {
     const fallbackClientName = clientVoiceSenders[0] || clientSenders[0] || "WhatsApp contact";
     const voiceNames = [...new Set(messages.map((message) => message.attachment).filter((name): name is string => isAudioAttachment(name)))];
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const configuredLanguage = process.env.WHATSAPP_TRANSCRIPTION_LANGUAGE?.trim().toLowerCase();
+    const transcriptionLanguage = configuredLanguage === "auto" ? undefined : configuredLanguage && /^[a-z]{2}$/.test(configuredLanguage) ? configuredLanguage : "ml";
     const transcripts: Record<string, string> = {};
     await updateProgress(10, voiceNames.length ? `Found ${voiceNames.length} voice notes...` : "Preparing conversation analysis...");
     let completedVoiceNotes = 0;
@@ -205,7 +207,7 @@ export async function POST(request: Request) {
         const buffer = Buffer.from(await voice.async("nodebuffer"));
         const uploadName = transcriptionFileName(voiceName);
         try {
-          const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, uploadName, { type: transcriptionMimeType(uploadName) }), model: "whisper-1" });
+          const transcription = await openai.audio.transcriptions.create({ file: await OpenAI.toFile(buffer, uploadName, { type: transcriptionMimeType(uploadName) }), model: "whisper-1", language: transcriptionLanguage, prompt: "Malayalam-first WhatsApp conversation with some English words. Transcribe verbatim in the spoken languages; keep Malayalam in Malayalam script, preserve English product names, names, numbers, prices, and technical terms, and do not translate." });
           transcripts[voiceName] = transcription.text;
         } catch (error) {
           console.error("Voice transcription failed", { requestId, userId, uploadId, voiceName, error });

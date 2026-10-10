@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T05:20:00+05:30 | Codex | Tune transcription for Malayalam-first mixed speech | Added Malayalam language guidance, verbatim mixed-language instructions, and the configurable `WHATSAPP_TRANSCRIPTION_LANGUAGE` environment variable in `src/app/api/process/route.ts` and `.env.local.example`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
+
 | 2026-10-11T04:55:00+05:30 | Codex | Build a five-second conversation overview | Added OpenAI document summaries, replaced attachment filenames with voice/document content markers, and tightened the lead summary prompt and detail rendering in `src/app/api/process/route.ts` and `src/components/lead-detail-view.tsx`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
 
 | 2026-10-11T04:25:00+05:30 | Codex | Display saved WhatsApp and voice-note transcripts | Replaced the lead-detail placeholder with a chronological transcript renderer that shows each full saved voice transcription below its original message in `src/components/lead-detail-view.tsx`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |

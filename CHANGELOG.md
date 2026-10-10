@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T05:20:00+05:30 — Improve Malayalam and English voice transcription
+
+- Changed: Whisper transcription now defaults to Malayalam (`ml`), preserves Malayalam script and mixed English terms through a transcription prompt, and supports `WHATSAPP_TRANSCRIPTION_LANGUAGE=auto` when exports use another primary language.
+- Why: The supplied WhatsApp voice notes are mainly Malayalam with English names and business terms; an explicit language hint improves recognition and prevents unwanted translation.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Recognition still depends on audio quality, accents, overlapping speech, and whether the voice note is understandable.
+
 ## 2026-10-11T04:55:00+05:30 — Add attachment-aware five-second lead overview
 
 - Changed: Added AI summaries for supported PDF, Word, text, spreadsheet, and presentation attachments; replaced audio and attachment filenames in the saved conversation with human-readable labels; and displayed document summaries below their original messages. Tightened the lead summary prompt to produce a factual 2–4 sentence overview.
