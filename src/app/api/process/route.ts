@@ -167,7 +167,8 @@ export async function POST(request: Request) {
     const engagementReason = lead.engagement_reason?.trim() || (lead.engagement_pattern === "price_only" ? "Asked for price or details and did not continue the conversation." : lead.engagement_pattern === "engaged_evaluating" ? "Discussed the offer with follow-up questions or concerns." : "There is not enough conversation to classify engagement yet.");
     const { data: savedLead, error: leadError } = await supabase.from("leads").insert({ user_id: user.id, name: lead.name, phone: lead.phone, status: lead.status, priority, engagement_pattern: lead.engagement_pattern, engagement_reason: engagementReason, summary: lead.summary, objections: lead.objections, promises_made: lead.promises_made, suggested_followup: lead.suggested_followup, suggested_followup_date: suggestedFollowupDate, raw_transcript: conversation }).select().single();
     if (leadError) throw leadError;
-    await supabase.from("uploads").update({ status: "completed", progress: 100, progress_message: "Completed" }).eq("id", upload.id).eq("user_id", user.id);
+    const completedUpdate = progressAvailable ? { status: "completed", progress: 100, progress_message: "Completed" } : { status: "completed" };
+    await supabase.from("uploads").update(completedUpdate).eq("id", upload.id).eq("user_id", user.id);
     return jsonSuccess({ uploadId: upload.id, leads: [savedLead] });
   } catch (error) {
     const message = errorMessage(error, "Processing failed; please retry this upload.");

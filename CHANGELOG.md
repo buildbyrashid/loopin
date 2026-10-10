@@ -10,6 +10,7 @@ Record each meaningful project change during the event, newest first. Update thi
 - Why: The upload completed quickly but sequential transcription made large exports appear stuck for several minutes.
 - Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
 - Limitations: Processing time still depends on the number and duration of voice notes and OpenAI response time; run the progress migration for live percentage updates on an existing Supabase project.
+- Compatibility: If an existing project has not run the migration, processing still completes and records the legacy upload status, but live percentage fields remain unavailable until the migration is applied.
 
 ## 2026-10-11T02:58:00+05:30 — Normalize WhatsApp Opus voice notes for Whisper
 
