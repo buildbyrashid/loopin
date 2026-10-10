@@ -1,11 +1,13 @@
 import { AppShell } from "@/components/app-shell";
 import { FollowupsView } from "@/components/followups-view";
-import { getCurrentUserLeads } from "@/lib/leads";
+import { AdminOverview } from "@/components/admin-data";
+import { getCurrentUserLeads, getCurrentUserRole } from "@/lib/leads";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
 async function FollowupsContent() {
   await connection();
+  if (await getCurrentUserRole() === "admin") return <AdminOverview />;
   const leads = await getCurrentUserLeads();
   return <AppShell><FollowupsView initialLeads={leads} /></AppShell>;
 }

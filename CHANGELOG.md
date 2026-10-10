@@ -53,6 +53,13 @@ Record each meaningful project change during the event, newest first. Update thi
 - Validation: `node node_modules/typescript/bin/tsc --noEmit`, `node node_modules/eslint/bin/eslint.js`, `git diff --check`, and `node node_modules/next/dist/bin/next build --webpack` passed.
 - Limitations: End-to-end role behavior requires the Supabase schema, authenticated profiles, and real lead rows in the configured project.
 
+## 2026-10-11T01:19:00+05:30 — Render admin overview for admin sessions
+
+- Changed: Added a server-side role check to the follow-ups route so an admin session renders the admin overview and usage insights even when the browser opens `/followups` directly.
+- Why: Avoid showing the regular empty workspace to administrators when a stale tab or dev session bypasses the login redirect.
+- Validation: TypeScript, ESLint, diff check, and the production Webpack build passed after the role-aware route change.
+- Limitations: The browser must be restarted or refreshed to load the latest local code.
+
 ## 2026-10-10T23:04:57+05:30 — Record solo participant
 
 - Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.

@@ -82,6 +82,6 @@ The admin console is available at `/admin` and includes overview, users, leads, 
 
 The SQL script promotes an existing authenticated profile; it does not create a password or expose credentials in the repository.
 
-Workspace data is user-scoped. Regular users only receive leads belonging to their authenticated Supabase user ID. Admins are routed to the admin console after login and are redirected back there if they try to open workspace routes.
+Workspace data is user-scoped. Regular users only receive leads belonging to their authenticated Supabase user ID. Admins are routed to the admin console after login and receive the admin overview even if `/followups` is opened directly.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

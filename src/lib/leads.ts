@@ -55,6 +55,15 @@ export function mapLead(row: LeadRow): Lead {
 
 const leadSelect = "id,name,phone,status,priority,engagement_pattern,summary,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
 
+export async function getCurrentUserRole() {
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  return data?.role ?? "user";
+}
+
 export async function getCurrentUserLeads() {
   const supabase = await createClient();
   if (!supabase) return [];
