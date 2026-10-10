@@ -62,7 +62,7 @@ const classificationPrompt = `Understand the complete WhatsApp conversation befo
 
 Price and feature questions are only examples, not requirements. A conversation is engaged_evaluating when the client shares a business need, requirements, use-case, workflow, constraints, documents, questions, concerns, comparisons, or a soft commitment and there is evidence of real evaluation. Price is optional. Use unclear only for greetings, isolated attachments, or too little interpretable content to identify a need, concern, or next step. First extract the client's business need, concerns or emotional state, buying signals, and overall sentiment. Separate facts from assumptions and write "Not stated" when evidence is missing. Make the suggested follow-up respond to the actual need or concern, not a generic price check-in.
 
-Return JSON fields: name, phone, status (hot/warm/cold), priority (high/low/unclear), engagement_pattern (price_only/engaged_evaluating/unclear), engagement_reason (one concise sentence citing evidence from the conversation), summary, business_need, client_concerns, buying_signals, client_sentiment (positive/neutral/concerned/negative/mixed/unclear), objections, promises_made, suggested_followup, suggested_followup_date.
+Return JSON fields: name, phone, status (hot/warm/cold), priority (high/low/unclear), engagement_pattern (price_only/engaged_evaluating/unclear), engagement_reason (one concise sentence citing evidence from the conversation), summary, business_need, client_concerns, buying_signals, client_sentiment (positive/neutral/concerned/negative/mixed/unclear), objections, promises_made, suggested_followup, suggested_followup_date. Make summary a factual 2-4 sentence overview that can be understood in about five seconds, including the client's need, what was discussed, important voice-note content, and meaningful document or quotation details.
 For suggested_followup_date, return an exact ISO date in YYYY-MM-DD when the client gave a timeframe. If engaged_evaluating has no explicit timeframe, return null; if price_only has no explicit timeframe, return null; if unclear, return null. Never invent facts. Return structured output in English.`;
 
 function dateAfterDays(days: number) {
@@ -99,6 +99,41 @@ function transcriptionMimeType(name: string) {
 
 function isAudioAttachment(name: string | undefined) {
   return Boolean(name && /\.(?:opus|ogg|m4a|mp3|wav|flac|webm|mp4|mpeg|mpga|oga)$/i.test(name));
+}
+
+function isDocumentAttachment(name: string | undefined) {
+  return Boolean(name && /\.(?:pdf|docx|doc|txt|md|csv|rtf|pptx|xlsx)$/i.test(name));
+}
+
+function attachmentMimeType(name: string) {
+  const extension = name.toLowerCase().split(".").pop();
+  const mimeTypes: Record<string, string> = {
+    pdf: "application/pdf", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", doc: "application/msword",
+    txt: "text/plain", md: "text/markdown", csv: "text/csv", rtf: "application/rtf", pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  };
+  return mimeTypes[extension ?? ""] ?? "application/octet-stream";
+}
+
+function zipFileForAttachment(zip: JSZip, name: string) {
+  const escaped = name.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+  return zip.file(new RegExp(`${escaped}$`, "i"))[0];
+}
+
+async function summarizeDocument(openai: OpenAI, zip: JSZip, name: string) {
+  const file = zipFileForAttachment(zip, name);
+  if (!file) return "Attachment content unavailable.";
+  const buffer = Buffer.from(await file.async("nodebuffer"));
+  if (buffer.byteLength > 15 * 1024 * 1024) return "Attachment is too large to summarize automatically.";
+  const dataUrl = `data:${attachmentMimeType(name)};base64,${buffer.toString("base64")}`;
+  const response = await openai.responses.create({
+    model: "gpt-4o-mini",
+    input: [{ role: "user", content: [
+      { type: "input_file", file_data: dataUrl, filename: name, detail: "low" },
+      { type: "input_text", text: "Summarize this attachment in 1-3 concise sentences for a sales CRM. Include the actual purpose, quoted amount or pricing, requirements, deliverables, dates, constraints, and concerns when present. Do not mention the filename. If the content cannot be read, say exactly: Content unavailable." },
+    ] }],
+    max_output_tokens: 180,
+  });
+  return response.output_text.trim() || "Content unavailable.";
 }
 
 async function forEachConcurrent<T>(items: T[], limit: number, worker: (item: T) => Promise<void>) {
@@ -182,12 +217,32 @@ export async function POST(request: Request) {
         await updateProgress(voiceProgress, voiceNames.length ? `Transcribing voice notes (${completedVoiceNotes}/${voiceNames.length})...` : "Preparing conversation analysis...");
       }
     });
+    const documentNames = [...new Set(messages.map((message) => message.attachment).filter((name): name is string => isDocumentAttachment(name)))];
+    const attachmentSummaries: Record<string, string> = {};
+    if (documentNames.length) {
+      await updateProgress(76, `Reading ${documentNames.length} shared document${documentNames.length === 1 ? "" : "s"}...`);
+      await forEachConcurrent(documentNames, 2, async (documentName) => {
+        try {
+          attachmentSummaries[documentName] = await summarizeDocument(openai, zip, documentName);
+        } catch (error) {
+          console.error("Attachment summary failed", { requestId, userId, uploadId, documentName, error });
+          attachmentSummaries[documentName] = "Content unavailable.";
+        }
+      });
+    }
     await updateProgress(80, "Analyzing conversation with AI...");
     const conversation = messages.map((message) => {
-      const base = `[${message.date}] ${message.sender}: ${message.text}`;
-      if (!isAudioAttachment(message.attachment)) return base;
-      const direction = isFounderSender(message.sender, founderIdentity) ? "sent by founder" : "received from client";
-      return `${base} [Voice note ${direction}; transcript: ${transcripts[message.attachment!] ?? "unavailable"}]`;
+      const attachment = message.attachment;
+      if (!attachment) return `[${message.date}] ${message.sender}: ${message.text}`;
+      const attachmentOnly = message.text.replace(/\s+\((?:file\s+)?attached\)$/i, "").trim() === attachment || new RegExp(`<attached:\\s*${attachment.replace(/[.*+?^${}()|[\\]\\]/g, "\\\\$&")}\\s*>`, "i").test(message.text);
+      const messageText = attachmentOnly ? "[Attachment]" : message.text;
+      const base = `[${message.date}] ${message.sender}: ${isAudioAttachment(attachment) ? "[Voice note]" : messageText}`;
+      if (isAudioAttachment(attachment)) {
+        const direction = isFounderSender(message.sender, founderIdentity) ? "sent by founder" : "received from client";
+        return `${base} [Voice note ${direction}; transcript: ${transcripts[attachment] ?? "unavailable"}]`;
+      }
+      const summary = attachmentSummaries[attachment];
+      return summary ? `${base} [Attachment summary: ${summary}]` : base;
     }).join("\n");
     const todayIso = new Date().toISOString().slice(0, 10);
     const identityContext = `\nIdentity rules for this export: the signed-in workspace owner/founder is "${founderIdentity || "unknown"}". Never use the founder's name as the lead name. A voice note marked "sent by founder" is founder context, not client identity; a voice note marked "received from client" is client evidence. Client-side message authors detected in the export: ${clientSenders.length ? clientSenders.join(", ") : "none"}. Prefer a reliable client-side author name; use "WhatsApp contact" when no client identity is clear.`;

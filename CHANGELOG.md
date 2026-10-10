@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:55:00+05:30 — Add attachment-aware five-second lead overview
+
+- Changed: Added AI summaries for supported PDF, Word, text, spreadsheet, and presentation attachments; replaced audio and attachment filenames in the saved conversation with human-readable labels; and displayed document summaries below their original messages. Tightened the lead summary prompt to produce a factual 2–4 sentence overview.
+- Why: A filename does not tell a founder what the client said or what a quotation contains. The lead should be understandable in a few seconds without replaying every voice note or opening every file.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed.
+- Limitations: Attachment summaries require the configured OpenAI key and supported readable document content; unsupported or unreadable files are marked as unavailable.
+
 ## 2026-10-11T04:25:00+05:30 — Show saved voice transcriptions in the conversation
 
 - Changed: Lead details now render the saved chronological conversation and place each full voice-note transcription directly below its original WhatsApp attachment message in `src/components/lead-detail-view.tsx`.
