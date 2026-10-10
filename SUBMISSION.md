@@ -4,11 +4,11 @@ Complete this file during the hackathon and use it to prepare your submission th
 
 ## Project
 
-- **Project name:** TODO
-- **Short description:** TODO — describe the problem, what you built, and who benefits.
+- **Project name:** Loopin
+- **Short description:** Helps founders keep up with WhatsApp leads by organizing exported conversations and surfacing follow-ups, while leaving every sales reply under human control. The current build is a starter page; the workflow is planned.
 - **Code repository URL:** TODO
 - **Final submitted implementation commit SHA:** TODO
-- **Working demo URL or local demo steps:** TODO
+- **Working demo URL or local demo steps:** Start the app with `npm run dev` and open <http://localhost:3000>. This currently shows the project overview, not the planned lead-management workflow.
 - **Demo access requirements:** TODO — explain any prerequisites without including private credentials.
 
 ## Participants
@@ -23,11 +23,11 @@ Participate solo or in a team of up to 4. Remove unused rows.
 
 - **Prerequisites and versions:** Node.js 20.9 or newer; npm.
 - **Install command:** `npm ci --allow-remote=all`
-- **Required environment variable names:** None for the starter.
+- **Required environment variable names:** None for the current starter. Planned integrations will need `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY`.
 - **Start command:** `npm run dev` (local development); `npm run build` then `npm run start` (production mode).
-- **Demo walkthrough:** Open the home page at <http://localhost:3000> to view the starter screen.
+- **Demo walkthrough:** Open the home page at <http://localhost:3000> to view the Loopin project overview. WhatsApp import and lead management are planned, not implemented.
 - **Checks performed and results:** `npm ci --allow-remote=all --no-audit --no-fund`, `npm run lint`, `npm run typecheck`, and `npm run build` passed.
-- **Known limitations or incomplete features:** The product idea and application features have not been defined yet. The production build uses Webpack because this environment blocks Turbopack worker processes.
+- **Known limitations or incomplete features:** WhatsApp ZIP parsing, transcription, AI extraction, Supabase persistence, follow-up lists, lead pipeline/detail pages, and Vercel deployment are not implemented. The production build uses Webpack because this environment blocks Turbopack worker processes.
 - **Libraries, APIs, and public datasets used:** Next.js 16.4.0, React 19.3.0, TypeScript, Tailwind CSS 4, and ESLint. Starter source: [Next.js create-next-app documentation](https://nextjs.org/docs/app/api-reference/cli/create-next-app). No external API or public dataset is used.
 - **AI usage record:** [AI_USAGE.md](AI_USAGE.md)
 - **Development change log:** [CHANGELOG.md](CHANGELOG.md)

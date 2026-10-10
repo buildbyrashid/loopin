@@ -1,6 +1,6 @@
-# DevDay Exchange Community Hackathon: Kochi
+# Loopin
 
-A repository template for participants at the 10–11 October 2026 hackathon. It contains event rules and documentation scaffolding; build your project from scratch at the event.
+Loopin helps solo founders and small agencies keep WhatsApp leads from going cold by organizing conversations and surfacing follow-ups. The project is being built at the [DevDay Exchange Community Hackathon: Kochi](https://luma.com/z10nz8gp).
 
 **[Event and registration on Luma](https://luma.com/z10nz8gp)** · **[Event rules](RULES.md)** · **[Agent instructions](AGENTS.md)**
 
@@ -19,23 +19,24 @@ A repository template for participants at the 10–11 October 2026 hackathon. It
 
 Keep your approved Luma QR code ready for entry, and bring your laptop and charger. Eligible checked-in participants will receive Codex credits and OpenAI API credits.
 
-## Use this template
+## Project workflow
 
-1. Select **Use this template → Create a new repository** on GitHub. Create your own project repository and clone it.
-2. Read [RULES.md](RULES.md) and [AGENTS.md](AGENTS.md) before building. Begin project implementation at the event.
-3. Fill in the project overview below as you build. Use any suitable language or framework, keeping the implementation simple.
-4. Record meaningful changes in [CHANGELOG.md](CHANGELOG.md) and your Codex usage in [AI_USAGE.md](AI_USAGE.md). Commit after completed milestones; aim for a meaningful checkpoint about every 30 minutes.
-5. Complete [SUBMISSION.md](SUBMISSION.md) with your code repository, short project description, and working demo. Follow submission instructions announced by the organizers.
+1. Read [RULES.md](RULES.md) and [AGENTS.md](AGENTS.md) before building. Project implementation must start from scratch at the event.
+2. Update the project overview as Loopin features are implemented, keeping planned work distinct from working behavior.
+3. Record meaningful changes in [CHANGELOG.md](CHANGELOG.md) and Codex usage in [AI_USAGE.md](AI_USAGE.md). Commit after completed milestones.
+4. Complete [SUBMISSION.md](SUBMISSION.md) with the repository, short project description, and working demo. Follow submission instructions announced by the organizers.
 
 The project starts from the official Next.js App Router starter, generated with `create-next-app`. The documentation and commit cadence are repository workflow guidance; the event participation rules are in [RULES.md](RULES.md).
 
-## Project overview — complete during the event
+## Project overview
 
-- **Project name:** TODO
-- **Short description:** TODO — what it does, who it helps, and why it matters.
+- **Project name:** Loopin
+- **Short description:** Helps founders keep up with WhatsApp leads by turning exported conversations and voice notes into lead summaries and follow-up reminders, while keeping all sales replies human-led.
 - **Team:** TODO — participant names and GitHub handles; maximum 4 members.
-- **Working demo:** TODO — link or local demo instructions.
+- **Working demo:** Run the starter locally using the commands below. The product workflow is not implemented yet.
 - **Technology stack:** Next.js 16.4.0, React 19, TypeScript, Tailwind CSS 4, ESLint.
+
+Planned integrations: Supabase Postgres and Storage, OpenAI Whisper and GPT, `jszip`, and Vercel deployment. These integrations are not implemented in the current starter.
 
 ### Run the project
 
@@ -46,7 +47,7 @@ npm ci --allow-remote=all
 npm run dev
 ```
 
-Open <http://localhost:3000>. No environment variables are required for the starter. The flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
+Open <http://localhost:3000>. No environment variables are required for the current starter. When the planned integrations are added, the expected variable names are `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY`; do not commit secret values. The install flag handles npm 12's default restriction on registry-hosted tarball dependencies; the lockfile pins package integrity. Production builds use Next.js's supported Webpack mode for compatibility with constrained worker environments.
 
 Run the project checks and production server with:
 
@@ -59,8 +60,8 @@ npm run start
 
 ### Current status
 
-- Working features: Responsive Next.js starter page and production build scripts.
-- Known limitations: The project idea and product features are not defined yet.
-- Libraries, APIs, and public datasets used: Next.js starter generated with [create-next-app](https://nextjs.org/docs/app/api-reference/cli/create-next-app); Next.js, React, TypeScript, Tailwind CSS, and ESLint. No external APIs or datasets.
+- Working features: Loopin project overview page and production build scripts.
+- Known limitations: WhatsApp ZIP parsing, voice-note transcription, GPT extraction, Supabase storage, follow-up reminders, lead views, and Vercel deployment are planned but not implemented.
+- Libraries, APIs, and public datasets used: Next.js starter generated with [create-next-app](https://nextjs.org/docs/app/api-reference/cli/create-next-app); current dependencies are Next.js, React, TypeScript, Tailwind CSS, and ESLint. No external API or dataset is currently used.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

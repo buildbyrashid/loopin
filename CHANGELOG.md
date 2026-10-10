@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T23:01:01+05:30 — Add Loopin project details
+
+- Changed: Replaced generic starter copy with Loopin's purpose and human-led messaging policy. Updated project overview, planned stack and integrations, run/demo details, and submission description. Marked proposed integrations as planned rather than implemented.
+- Why: Reflect the supplied project context in the existing starter without implementing product features.
+- Validation: No feature checks run; content-only update as requested.
+- Limitations: WhatsApp import, transcription, extraction, persistence, follow-ups, and lead views remain unimplemented.
+
 ## 2026-10-10T22:42:19+05:30 — Initialize Next.js project
 
 - Changed: Added the official Next.js 16.4.0 App Router starter with TypeScript, Tailwind CSS 4, ESLint, npm scripts, a lockfile, Node.js engine requirement, and Loopin metadata. Replaced build-time Google Fonts with system fonts and configured Webpack for production builds. Updated README and submission setup commands.

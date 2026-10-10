@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Loopin",
-  description: "A new project built with Next.js.",
+  title: "Loopin — WhatsApp lead follow-up",
+  description:
+    "Loopin helps founders keep WhatsApp leads warm with clear summaries and human-reviewed follow-ups.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
