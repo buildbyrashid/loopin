@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, Database, LayoutDashboard, LogOut, Settings, ShieldCheck, UsersRound } from "lucide-react";
+import { BarChart3, Database, LayoutDashboard, LogOut, ShieldCheck, UsersRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/app-shell";
 
@@ -35,8 +35,6 @@ export function AdminShell({ children, email }: { children: React.ReactNode; ema
           })}
         </nav>
         <div className="mt-auto space-y-2">
-          <Link href="/followups" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white"><LayoutDashboard size={17} />Workspace</Link>
-          <Link href="/settings" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white"><Settings size={17} />Account settings</Link>
           <button onClick={signOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white"><LogOut size={17} />Log out</button>
           <div className="mt-5 border-t border-slate-800 pt-5"><p className="truncate text-xs text-slate-400">{email ?? "Admin account"}</p><p className="mt-1 text-xs font-semibold text-indigo-300">Administrator</p></div>
         </div>

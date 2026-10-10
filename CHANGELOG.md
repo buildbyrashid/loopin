@@ -46,6 +46,13 @@ Record each meaningful project change during the event, newest first. Update thi
 - Validation: `node node_modules/typescript/bin/tsc --noEmit`, `node node_modules/eslint/bin/eslint.js`, `git diff --check`, and `node node_modules/next/dist/bin/next build --webpack` passed. The production build reports all four admin routes as partial-prerendered.
 - Limitations: The Supabase schema must be applied, an account must sign up, and `supabase/promote-admin.sql` must be run before the first admin login. No admin password or credential was created by the code change.
 
+## 2026-10-11T01:14:36+05:30 — Scope workspace data by user role
+
+- Changed: Replaced seeded workspace leads with authenticated Supabase queries, added user-scoped lead mapping and empty states, routed admin logins and OAuth callbacks to `/admin`, and blocked admins from regular workspace routes.
+- Why: Prevent admin sessions from opening client preview data and ensure each regular user sees only leads created or uploaded in their own workspace.
+- Validation: `node node_modules/typescript/bin/tsc --noEmit`, `node node_modules/eslint/bin/eslint.js`, `git diff --check`, and `node node_modules/next/dist/bin/next build --webpack` passed.
+- Limitations: End-to-end role behavior requires the Supabase schema, authenticated profiles, and real lead rows in the configured project.
+
 ## 2026-10-10T23:04:57+05:30 — Record solo participant
 
 - Changed: Replaced the README team placeholder with the supplied name, GitHub handle, and email; completed the participant row in `SUBMISSION.md` with the name, handle, and contribution.

@@ -61,7 +61,7 @@ npm run start
 ### Current status
 
 - Working features: Responsive Loopin landing/upload UI, auth screens, Supabase session middleware, RLS schema, upload validation and ZIP parsing, OpenAI processing route, follow-up dashboard, leads pipeline, lead detail editor, settings, protected admin console, API error shapes, and custom error/404 pages.
-- Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. The dashboard uses preview lead data until the data-fetching layer is connected to a populated database.
+- Known limitations: Real auth, storage, AI processing, and database behavior require a configured Supabase project and OpenAI key. Workspace pages show an empty state until the signed-in user imports or creates leads; the landing page still contains illustrative preview cards.
 - Libraries, APIs, and public datasets used: Next.js, React, TypeScript, Tailwind CSS, Supabase SSR/Postgres/Storage, OpenAI Whisper and GPT, JSZip, Zod, React Hook Form, Sonner, and Lucide React. No public dataset is used.
 
 ### Supabase setup
@@ -81,5 +81,7 @@ The admin console is available at `/admin` and includes overview, users, leads, 
 4. Sign out and sign back in, then open <http://localhost:3000/admin>. Non-admin profiles are redirected back to the workspace.
 
 The SQL script promotes an existing authenticated profile; it does not create a password or expose credentials in the repository.
+
+Workspace data is user-scoped. Regular users only receive leads belonging to their authenticated Supabase user ID. Admins are routed to the admin console after login and are redirected back there if they try to open workspace routes.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

@@ -19,12 +19,21 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const protectedRoute = request.nextUrl.pathname.startsWith("/followups") || request.nextUrl.pathname.startsWith("/leads") || request.nextUrl.pathname.startsWith("/settings") || request.nextUrl.pathname.startsWith("/admin");
+  const adminRoute = request.nextUrl.pathname.startsWith("/admin");
+  const workspaceRoute = request.nextUrl.pathname.startsWith("/followups") || request.nextUrl.pathname.startsWith("/leads") || request.nextUrl.pathname.startsWith("/settings");
+  const protectedRoute = workspaceRoute || adminRoute;
   if (protectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(url);
+  }
+
+  if (user && (adminRoute || workspaceRoute)) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    if (profile?.role === "admin" && workspaceRoute) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return response;
