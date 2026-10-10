@@ -7,7 +7,7 @@ Complete this file during the hackathon and use it to prepare your submission th
 - **Project name:** Loopin
 - **Short description:** Loopin is a WhatsApp-first AI sales CRM that turns exported chats and voice notes into lead summaries and human-reviewed follow-up suggestions.
 - **Code repository URL:** https://github.com/buildbyrashid/loopin
-- **Final submitted implementation commit SHA:** TODO
+- **Final submitted implementation commit SHA:** 4b88e62
 - **Working demo URL or local demo steps:** Copy `.env.local.example` to `.env.local`, run `npm ci --allow-remote=all`, then `npm run dev` and open <http://localhost:3000>. Auth and data processing require Supabase/OpenAI credentials.
 - **Demo access requirements:** Local demo requires Node.js 20.9+, npm, and a configured Supabase project. Upload processing additionally requires an OpenAI API key. Use local environment variables; no credentials are stored in the repository.
 
