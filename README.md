@@ -66,9 +66,9 @@ npm run start
 
 ### Supabase setup
 
-1. Create a Supabase project and enable Email/Password and Google providers under Authentication.
+1. Create a Supabase project and enable Email/Password under Authentication. Enable Google only after adding its OAuth client ID and secret.
 2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor. This creates profiles, leads, uploads, the private `whatsapp-exports` bucket, and user-scoped RLS policies.
-3. Add the project URL and anon key to `.env.local`. Add an OpenAI key to enable Whisper/GPT processing.
-4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs.
+3. Set `NEXT_PUBLIC_SUPABASE_URL` to the project URL (`https://<project-ref>.supabase.co`) and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the anon JWT. Do not put a JWT in the URL field. Add an OpenAI key to enable Whisper/GPT processing.
+4. For Google OAuth, add `${NEXT_PUBLIC_SITE_URL}/auth/callback` to Supabase's redirect URLs and configure the same callback in the Google Cloud OAuth client.
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

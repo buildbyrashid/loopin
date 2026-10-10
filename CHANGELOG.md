@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:46:30+05:30 — Verify local auth configuration
+
+- Changed: Corrected the local Supabase URL from an accidentally duplicated anon JWT, added visible Google OAuth error handling, and documented the required Supabase URL/key distinction and Google provider setup.
+- Why: The local auth client rejected the invalid URL before signup or OAuth could run. The configured Supabase project currently has Google OAuth disabled.
+- Validation: Supabase auth settings returned HTTP 200; local routes and production checks passed earlier. Google authorization correctly reports a 400 while the provider is disabled.
+- Limitations: A real email signup still requires an inbox that can receive Supabase's verification email. Google OAuth requires provider credentials configured in Supabase and Google Cloud.
+
 ## 2026-10-11T00:24:24+05:30 — Fix production CSS bundle
 
 - Changed: Added Tailwind's PostCSS adapter and production stylesheet configuration.
