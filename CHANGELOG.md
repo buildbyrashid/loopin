@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:28:00+05:30 — Harden AI extraction and processing failures
+
+- Changed: Normalize common AI response variations before schema validation, log validation fields without conversation content, and mark failed uploads when processing errors occur.
+- Why: A valid uploaded conversation reached OpenAI but failed because optional or empty model fields did not match the strict lead schema; failed uploads also remained stuck in processing.
+- Validation: TypeScript, ESLint, diff check, and production Webpack build passed after the change.
+- Limitations: AI output still depends on the configured OpenAI account and model availability; archives without media cannot produce voice transcripts.
+
 ## 2026-10-11T02:16:00+05:30 — Accept standard WhatsApp chat filenames and audio attachments
 
 - Changed: Accepted both `chat.txt` and `_chat.txt` in upload and processing routes, recognized standard `(file attached)` message filenames, and restricted transcription attempts to audio extensions.
