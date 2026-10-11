@@ -4,6 +4,20 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T06:56:30+05:30 — Format hero headline to balance across two lines
+
+- Changed: Placed the line break after "WhatsApp" in `src/app/page.tsx` so line 1 is "Never let a WhatsApp" and line 2 is "lead go cold." with gradient styling directly after "lead".
+- Why: Keep line lengths balanced and visually aligned without accidental three-line wraps on responsive viewports.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
+## 2026-10-11T06:53:20+05:30 — Reduce hero headline size and format to two lines
+
+- Changed: Reduced the hero `<h1>` font size in `src/app/page.tsx` from `text-6xl` to `text-3xl sm:text-4xl lg:text-[46px]` and added a block-level break so "Never let a WhatsApp lead" and "go cold." render cleanly across exactly two lines without wrapping into three lines.
+- Why: Improve visual balance and typography readability in the hero section.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T06:50:00+05:30 — Add visual WhatsApp chat and voice note illustration to hero showcase
 
 - Changed: Replaced the static header in the hero right-side card with an illustrative glassmorphic mockup showing an incoming WhatsApp text message bubble, a voice note waveform bubble with audio track bars, and an energetic curved arrow pointing directly down into the extracted lead card below in `src/app/page.tsx`.

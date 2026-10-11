@@ -254,8 +254,9 @@ export default function Home() {
               <span>Other tools automate conversations. We protect them.</span>
             </div>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl lg:leading-[1.1]">
-              Never let a WhatsApp lead{" "}
+            <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-[46px] lg:leading-[1.15]">
+              Never let a WhatsApp <br className="hidden sm:inline" />
+              lead{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-500">
                 go cold.
               </span>
