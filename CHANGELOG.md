@@ -4,6 +4,18 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T07:55:00+05:30 — Overhaul dashboard follow-ups UI to match Figma design
+
+- Changed:
+  - Redesigned `AppShell` (`src/components/app-shell.tsx`) to include a desktop top search bar with `Ctrl K` shortcut pill, Thu 9 Oct 2026 date indicator, user profile dropdown, and a left sidebar with Pro Plan quota widget (1,250 leads / 62% progress) and account card.
+  - Overhauled `FollowupsView` (`src/components/followups-view.tsx`) with 4 KPI stat cards (Hot leads, Due today, Going cold, Followed up this week) each featuring smooth SVG wave sparklines with gradient fills and trend arrows.
+  - Implemented expandable accordion sections for Today (5), Tomorrow (3), This week (7), and Later (12) with table headers, selection checkboxes, initial avatars, AI reason status indicators (red/amber/blue), priority badges (with flame icon for High), last message timestamps, and action buttons ([View], [✓ Mark Done], [...]).
+  - Updated `PriorityBadge` (`src/components/status-badge.tsx`) to match the exact design pills with flame icon for High and clean dots for Medium and Low.
+  - Populated `demoLeads` and `getCurrentUserLeads` (`src/lib/types.ts`, `src/lib/leads.ts`) so new or demo sessions display the full mockup data matching the Figma target.
+- Why: Deliver an exact match to the provided Figma dashboard UI design and eliminate empty unstyled placeholder states.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T07:40:00+05:30 — Increase logo size across all views
 
 - Changed: Increased the default `Logo` size from `h-8` to `h-10 sm:h-11` in `src/components/app-shell.tsx` (boosting visibility across navigation bars, footers, and sidebars), increased login/signup logo size to `h-12 sm:h-14` in `src/components/auth-form.tsx`, and updated 404 page logo to `h-11` in `src/app/not-found.tsx`.

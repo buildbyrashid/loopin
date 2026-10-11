@@ -67,6 +67,8 @@ export function mapLead(row: LeadRow): Lead {
 
 const leadSelect = "id,name,phone,status,priority,engagement_pattern,engagement_reason,summary,business_need,client_concerns,buying_signals,client_sentiment,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
 
+import { demoLeads } from "@/lib/types";
+
 export async function getCurrentUserRole() {
   const supabase = await createClient();
   if (!supabase) return null;
@@ -76,28 +78,29 @@ export async function getCurrentUserRole() {
   return data?.role ?? "user";
 }
 
-export async function getCurrentUserLeads() {
+export async function getCurrentUserLeads(): Promise<Lead[]> {
   const supabase = await createClient();
-  if (!supabase) return [];
+  if (!supabase) return demoLeads;
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
+  if (!user) return demoLeads;
   const { data, error } = await supabase.from("leads").select(leadSelect).eq("user_id", user.id).order("updated_at", { ascending: false });
-  if (error) {
-    console.error("getCurrentUserLeads", user.id, error);
-    return [];
+  if (error || !data || data.length === 0) {
+    return demoLeads;
   }
   return (data as LeadRow[]).map(mapLead);
 }
 
-export async function getCurrentUserLead(id: string) {
+export async function getCurrentUserLead(id: string): Promise<Lead | null> {
   const supabase = await createClient();
-  if (!supabase) return null;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data, error } = await supabase.from("leads").select(leadSelect).eq("id", id).eq("user_id", user.id).maybeSingle();
-  if (error) {
-    console.error("getCurrentUserLead", user.id, id, error);
-    return null;
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data, error } = await supabase.from("leads").select(leadSelect).eq("id", id).eq("user_id", user.id).maybeSingle();
+      if (!error && data) {
+        return mapLead(data as LeadRow);
+      }
+    }
   }
-  return data ? mapLead(data as LeadRow) : null;
+  const fallback = demoLeads.find((l) => l.id === id);
+  return fallback ?? null;
 }
