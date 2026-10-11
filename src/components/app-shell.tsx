@@ -13,7 +13,7 @@ const nav = [
 ];
 
 export function Logo({
-  className = "h-10 sm:h-11 w-auto",
+  className = "h-10 sm:h-14 w-auto",
   light = false,
 }: {
   className?: string;
@@ -24,9 +24,8 @@ export function Logo({
       <img
         src="/images/Loopin Infinity Logo.png"
         alt="Loopin"
-        className={`${className} object-contain transition-opacity hover:opacity-90 ${
-          light ? "brightness-0 invert" : ""
-        }`}
+        className={`${className} object-contain transition-opacity hover:opacity-90 ${light ? "brightness-0 invert" : ""
+          }`}
       />
     </Link>
   );
