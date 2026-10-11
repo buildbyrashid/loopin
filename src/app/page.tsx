@@ -665,27 +665,102 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-10 text-xs text-slate-500">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 sm:flex-row lg:px-10">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <span className="text-slate-300">|</span>
-            <span>Never let a WhatsApp lead go cold.</span>
+      {/* SaaS Level Minimal Footer */}
+      <footer className="border-t border-slate-200/80 bg-white pt-16 pb-12 text-slate-600">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-5 lg:gap-12">
+            {/* Col 1: Brand & Tagline (spans 2 cols) */}
+            <div className="md:col-span-2">
+              <Logo />
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-500">
+                Never let a WhatsApp lead go cold. The 100% human-led sales pipeline designed for
+                founders and agencies closing high-trust deals.
+              </p>
+              <div className="mt-5 flex items-center gap-2 text-xs font-medium text-slate-500">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 ring-4 ring-emerald-100" />
+                <span>All systems operational &bull; WhatsApp export ready</span>
+              </div>
+            </div>
+
+            {/* Col 2: Product */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-900">Product</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <a href="#how" className="text-slate-500 transition hover:text-indigo-600">
+                    How it works
+                  </a>
+                </li>
+                <li>
+                  <a href="#wedge" className="text-slate-500 transition hover:text-indigo-600">
+                    Why Loopin
+                  </a>
+                </li>
+                <li>
+                  <Link href="/followups" className="text-slate-500 transition hover:text-indigo-600">
+                    Follow-ups radar
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/leads" className="text-slate-500 transition hover:text-indigo-600">
+                    Leads pipeline
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Col 3: Intelligence */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-900">Intelligence</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li className="text-slate-500">Whisper transcription</li>
+                <li className="text-slate-500">Malayalam &amp; English</li>
+                <li className="text-slate-500">Promise &amp; timer alerts</li>
+                <li className="text-slate-500">Zero automated bots</li>
+              </ul>
+            </div>
+
+            {/* Col 4: Workspace */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-900">Workspace</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <Link href="/login" className="text-slate-500 transition hover:text-indigo-600">
+                    Sign in
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/signup" className="text-slate-500 transition hover:text-indigo-600">
+                    Create account
+                  </Link>
+                </li>
+                <li>
+                  <a href="#faq" className="text-slate-500 transition hover:text-indigo-600">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/buildbyrashid/loopin"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-500 transition hover:text-indigo-600"
+                  >
+                    GitHub repo
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="flex items-center gap-6">
-            <a href="#how" className="hover:text-slate-900">
-              How it works
-            </a>
-            <a href="#wedge" className="hover:text-slate-900">
-              Why Loopin
-            </a>
-            <a href="#faq" className="hover:text-slate-900">
-              FAQ
-            </a>
-            <Link href="/login" className="hover:text-slate-900">
-              Login
-            </Link>
+
+          {/* Bottom Bar */}
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-7 text-xs text-slate-400 sm:flex-row">
+            <p>&copy; {new Date().getFullYear()} Loopin. Built for DevDay Exchange Kochi.</p>
+            <div className="flex items-center gap-5">
+              <span>Human-led by design</span>
+              <span className="h-3 w-px bg-slate-200" />
+              <span>Privacy-first exports</span>
+            </div>
           </div>
         </div>
       </footer>
