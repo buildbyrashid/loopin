@@ -251,7 +251,7 @@ export default function Home() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-indigo-700 shadow-xs">
               <Sparkles size={14} className="text-indigo-600" />
-              <span>Other tools automate conversations. We protect them.</span>
+              <span>100% Human-led sales intelligence for WhatsApp</span>
             </div>
 
             <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-[46px] lg:leading-[1.15]">

@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T07:05:00+05:30 | Codex | Update hero badge to human-led sales tagline | Updated badge text in `src/app/page.tsx` to "100% Human-led sales intelligence for WhatsApp". | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T06:56:30+05:30 | Codex | Format hero headline to balance across two lines | Adjusted line break position in `src/app/page.tsx` so line 1 is "Never let a WhatsApp" and line 2 is "lead go cold." for balanced line lengths. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T06:53:20+05:30 | Codex | Reduce hero headline size and format to two lines | Reduced `<h1>` font size to `text-3xl sm:text-4xl lg:text-[46px]` and added a block-level break so the headline fits cleanly on two lines in `src/app/page.tsx`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

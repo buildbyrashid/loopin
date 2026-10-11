@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T07:05:00+05:30 — Update hero badge to human-led sales tagline
+
+- Changed: Updated the badge copy in `src/app/page.tsx` from "Other tools automate conversations. We protect them." to "100% Human-led sales intelligence for WhatsApp".
+- Why: Focus directly on the product's primary value proposition and trust-based consultative selling message.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T06:56:30+05:30 — Format hero headline to balance across two lines
 
 - Changed: Placed the line break after "WhatsApp" in `src/app/page.tsx` so line 1 is "Never let a WhatsApp" and line 2 is "lead go cold." with gradient styling directly after "lead".
