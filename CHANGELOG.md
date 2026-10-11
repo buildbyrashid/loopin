@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T07:16:40+05:30 — Enable instant workspace redirect on signup without manual verification
+
+- Changed: Updated the signup submission handler in `src/components/auth-form.tsx` to automatically redirect users straight into `/followups` upon account creation whenever Supabase returns an active session or auto-signs in, avoiding verification halts.
+- Why: Provide friction-free onboarding so anyone can register and immediately test or demo Loopin.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: Requires disabling "Confirm email" in the Supabase Authentication dashboard to skip Supabase's server-side confirmation requirement.
+
 ## 2026-10-11T07:10:00+05:30 — Implement minimal SaaS-level structured footer
 
 - Changed: Replaced the single-line footer in `src/app/page.tsx` with a clean, minimal SaaS-level layout featuring a brand summary, live operational status badge, structured columns for Product, Intelligence, and Workspace, and a refined sub-footer with copyright and privacy markers.
