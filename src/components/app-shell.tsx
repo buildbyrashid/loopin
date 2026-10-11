@@ -23,7 +23,7 @@ import { toast } from "sonner";
 const navItems = [
   { href: "/followups", label: "Follow-ups", icon: Home },
   { href: "/leads", label: "Leads", icon: UsersRound },
-  { href: "/", label: "Import chat", icon: UploadCloud },
+  { href: "/import", label: "Import chat", icon: UploadCloud },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

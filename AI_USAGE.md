@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T08:25:00+05:30 | Codex | Add dedicated in-workspace WhatsApp chat import page (/import) | Built `src/app/import/page.tsx` and `src/components/chat-import-view.tsx` with drag-and-drop .zip upload, live extraction progress bar, and iOS/Android export instructions inside `AppShell`. Updated sidebar navigation link from `/` to `/import` to prevent landing page redirects. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T08:08:00+05:30 | Codex | Fix Next.js unstable new Date() client prerender error | Replaced dynamic `new Date().getFullYear()` with static `2026` in `src/app/page.tsx` footer, and deferred date calculation into `useEffect` in `src/components/app-shell.tsx` to eliminate Next.js prerender warnings on route `/`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T08:04:00+05:30 | Codex | Remove hardcoded demo data and dynamically handle real leads and empty states | Removed hardcoded `demoLeads` from `src/lib/leads.ts` and `src/components/followups-view.tsx`. Updated followups view and KPI metrics to compute dynamically from actual user leads in Supabase, displaying clean empty states when no data is present and the full table view when leads exist. Updated `AppShell` with live date and real lead count. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

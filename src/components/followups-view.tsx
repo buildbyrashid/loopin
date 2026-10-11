@@ -675,7 +675,7 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
             Export a chat from WhatsApp (.zip with media) and drop it here. Loopin will automatically detect hot leads, objections, and follow-up schedules.
           </p>
           <Link
-            href="/"
+            href="/import"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700"
           >
             <UploadCloud size={14} /> Import chat export

@@ -4,6 +4,17 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T08:25:00+05:30 — Add dedicated in-workspace WhatsApp chat import page (/import)
+
+- Changed:
+  - Created `src/app/import/page.tsx` and `src/components/chat-import-view.tsx` providing a dedicated, full-featured WhatsApp chat import page inside the authenticated workspace layout.
+  - Features include drag-and-drop file upload, real-time extraction progress bar, multi-step export tutorial for iOS and Android WhatsApp, and feature badges.
+  - Updated sidebar navigation in `src/components/app-shell.tsx` so "Import chat" navigates directly to `/import` rather than redirecting out of the workspace to the public landing page.
+  - Linked workspace empty states across `followups-view.tsx` and `leads-view.tsx` directly to `/import`.
+- Why: Provide seamless in-workspace UX so logged-in users never get booted back to the landing page when uploading WhatsApp exports.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T08:08:00+05:30 — Fix Next.js unstable new Date() client prerender error
 
 - Changed:
