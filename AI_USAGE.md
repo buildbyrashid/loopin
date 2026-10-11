@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T08:08:00+05:30 | Codex | Fix Next.js unstable new Date() client prerender error | Replaced dynamic `new Date().getFullYear()` with static `2026` in `src/app/page.tsx` footer, and deferred date calculation into `useEffect` in `src/components/app-shell.tsx` to eliminate Next.js prerender warnings on route `/`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T08:04:00+05:30 | Codex | Remove hardcoded demo data and dynamically handle real leads and empty states | Removed hardcoded `demoLeads` from `src/lib/leads.ts` and `src/components/followups-view.tsx`. Updated followups view and KPI metrics to compute dynamically from actual user leads in Supabase, displaying clean empty states when no data is present and the full table view when leads exist. Updated `AppShell` with live date and real lead count. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T07:55:00+05:30 | Codex | Overhaul dashboard follow-ups UI to match Figma design | Rebuilt `FollowupsView` and `AppShell` with desktop search bar with `Ctrl K`, Thu 9 Oct 2026 date indicator, user profile dropdown, Pro Plan progress card, 4 stat cards with SVG sparkline wave charts, interactive expandable accordion sections for Today (5), Tomorrow (3), This week (7), Later (12) with table headers, styled priority badges with flame icon for High, and rich demo data fallback. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

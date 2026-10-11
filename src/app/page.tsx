@@ -753,7 +753,7 @@ export default function Home() {
 
           {/* Bottom Bar */}
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-7 text-xs text-slate-400 sm:flex-row">
-            <p>&copy; {new Date().getFullYear()} Loopin. Built for DevDay Exchange Kochi.</p>
+            <p>&copy; 2026 Loopin. Built for DevDay Exchange Kochi.</p>
             <div className="flex items-center gap-5">
               <span>Human-led by design</span>
               <span className="h-3 w-px bg-slate-200" />

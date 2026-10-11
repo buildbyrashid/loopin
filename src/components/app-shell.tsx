@@ -56,12 +56,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const formattedDate = new Intl.DateTimeFormat("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date());
+  const [formattedDate, setFormattedDate] = useState("Thu, 9 Oct 2026");
+
+  useEffect(() => {
+    setFormattedDate(
+      new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(new Date())
+    );
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();

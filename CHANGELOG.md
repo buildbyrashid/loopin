@@ -4,6 +4,15 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T08:08:00+05:30 — Fix Next.js unstable new Date() client prerender error
+
+- Changed:
+  - Replaced dynamic `new Date().getFullYear()` with static `2026` in footer of `src/app/page.tsx`.
+  - Moved live date evaluation inside `useEffect` in `src/components/app-shell.tsx` to prevent non-deterministic values during Client Component SSR prerendering.
+- Why: Next.js 15+ flags dynamic time APIs like `new Date()` directly in the render body of Client Components because they produce non-deterministic prerenders and hydration mismatches.
+- Validation: TypeScript check (`npm run typecheck`) passed with 0 errors. Dev server route `/` now renders without prerender warnings.
+- Limitations: None.
+
 ## 2026-10-11T08:04:00+05:30 — Remove hardcoded demo data and dynamically handle real leads and empty states
 
 - Changed:
