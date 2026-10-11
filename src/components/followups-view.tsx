@@ -2,24 +2,23 @@
 
 import Link from "next/link";
 import {
-  Calendar,
   CalendarDays,
   Check,
   CheckCircle2,
   ChevronDown,
   Clock,
+  Clock3,
+  Copy,
   Flame,
   Inbox,
   MoreHorizontal,
   Sparkles,
   ArrowRight,
-  Copy,
-  Clock3,
+  UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import type { Lead } from "@/lib/types";
-import { demoLeads } from "@/lib/types";
 import { PriorityBadge } from "@/components/status-badge";
 
 type GroupKey = "today" | "tomorrow" | "thisWeek" | "later";
@@ -42,11 +41,53 @@ const avatarColors = [
   "bg-[#DCFCE7] text-[#16A34A]", // emerald
 ];
 
-export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
-  // Use provided leads or fallback to demoLeads matching Image 1
-  const activeSourceLeads = initialLeads.length > 0 ? initialLeads : demoLeads;
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
 
-  const [leads, setLeads] = useState<Lead[]>(activeSourceLeads);
+function groupLeads(leads: Lead[]) {
+  const today = startOfDay(new Date());
+  const day = 24 * 60 * 60 * 1000;
+  const todayDate = new Date(today);
+  const daysUntilWeekEnd = todayDate.getDay() === 0 ? 0 : 7 - todayDate.getDay();
+  const weekEnd = today + daysUntilWeekEnd * day;
+
+  const groups: Record<GroupKey, Lead[]> = {
+    today: [],
+    tomorrow: [],
+    thisWeek: [],
+    later: [],
+  };
+
+  for (const lead of leads) {
+    if (lead.followedUp) continue;
+
+    const date = lead.suggestedFollowupDateIso
+      ? new Date(`${lead.suggestedFollowupDateIso}T00:00:00`).getTime()
+      : Number.NaN;
+
+    if (Number.isNaN(date)) {
+      const text = (lead.suggestedFollowupDate || "").toLowerCase();
+      if (text.includes("today")) groups.today.push(lead);
+      else if (text.includes("tomorrow")) groups.tomorrow.push(lead);
+      else if (text.includes("week")) groups.thisWeek.push(lead);
+      else groups.later.push(lead);
+    } else if (date <= today) {
+      groups.today.push(lead);
+    } else if (date <= today + day) {
+      groups.tomorrow.push(lead);
+    } else if (date <= weekEnd) {
+      groups.thisWeek.push(lead);
+    } else {
+      groups.later.push(lead);
+    }
+  }
+
+  return groups;
+}
+
+export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [openSections, setOpenSections] = useState<Record<GroupKey, boolean>>({
     today: true,
@@ -56,71 +97,41 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
   });
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
-  // Group leads into the 4 buckets
-  const sections: FollowupSection[] = useMemo(() => {
-    const todayList: Lead[] = [];
-    const tomorrowList: Lead[] = [];
-    const thisWeekList: Lead[] = [];
-    const laterList: Lead[] = [];
+  // Group real leads
+  const grouped = useMemo(() => groupLeads(leads), [leads]);
 
-    // Fallback counts matching mockup
-    demoLeads.forEach((demoLead) => {
-      // If leads state has this lead (not marked done)
-      const current = leads.find((l) => l.id === demoLead.id);
-      if (!current || current.followedUp) return;
-
-      if (demoLead.suggestedFollowupDate === "Today") {
-        todayList.push(current);
-      } else if (demoLead.suggestedFollowupDate === "Tomorrow") {
-        tomorrowList.push(current);
-      } else if (demoLead.suggestedFollowupDate === "This week") {
-        thisWeekList.push(current);
-      } else {
-        laterList.push(current);
-      }
-    });
-
-    // Also include any custom uploaded leads that aren't in demoLeads
-    leads
-      .filter(
-        (l) =>
-          !demoLeads.some((d) => d.id === l.id) &&
-          !l.followedUp &&
-          Boolean(l.suggestedFollowup)
-      )
-      .forEach((customLead) => {
-        const date = customLead.suggestedFollowupDate?.toLowerCase() ?? "";
-        if (date.includes("today")) todayList.push(customLead);
-        else if (date.includes("tomorrow")) tomorrowList.push(customLead);
-        else if (date.includes("week")) thisWeekList.push(customLead);
-        else laterList.push(customLead);
-      });
-
-    return [
-      { key: "today", title: "Today", count: todayList.length, leads: todayList },
+  const sections: FollowupSection[] = useMemo(
+    () => [
+      {
+        key: "today",
+        title: "Today",
+        count: grouped.today.length,
+        leads: grouped.today,
+      },
       {
         key: "tomorrow",
         title: "Tomorrow",
-        count: tomorrowList.length,
+        count: grouped.tomorrow.length,
         icon: Clock,
-        leads: tomorrowList,
+        leads: grouped.tomorrow,
       },
       {
         key: "thisWeek",
         title: "This week",
-        count: thisWeekList.length,
+        count: grouped.thisWeek.length,
         icon: CalendarDays,
-        leads: thisWeekList,
+        leads: grouped.thisWeek,
       },
       {
         key: "later",
         title: "Later",
-        count: laterList.length,
+        count: grouped.later.length,
         icon: Inbox,
-        leads: laterList,
+        leads: grouped.later,
       },
-    ];
-  }, [leads]);
+    ],
+    [grouped]
+  );
 
   const toggleSection = (key: GroupKey) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -155,25 +166,29 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
     );
     toast.success(`Follow-up marked as done for ${name}`);
 
-    // If it's a real lead in db, sync it
-    if (!id.startsWith("mock-") && !demoLeads.some((d) => d.id === id)) {
-      try {
-        await fetch(`/api/leads/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ followedUp: true }),
-        });
-      } catch {
-        // silently retain local state for smooth demo
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ followedUp: true }),
+      });
+      if (!res.ok) {
+        setLeads(previous);
+        toast.error("Unable to update lead on server");
       }
+    } catch {
+      setLeads(previous);
+      toast.error("Network error while updating lead");
     }
   };
 
-  // Sparkline data counts matching Image 1
-  const hotCount = 12;
-  const dueTodayCount = sections[0].count || 8;
-  const goingColdCount = 15;
-  const followedUpCount = 10;
+  // Real computed KPI counts from actual data
+  const hotCount = leads.filter((l) => l.status === "hot" && !l.followedUp).length;
+  const dueTodayCount = grouped.today.length;
+  const goingColdCount = leads.filter((l) => l.status === "cold" && !l.followedUp).length;
+  const followedUpCount = leads.filter((l) => l.followedUp).length;
+
+  const hasAnyLeads = leads.length > 0;
 
   return (
     <div className="space-y-7">
@@ -192,7 +207,7 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
 
         <button
-          onClick={() => toast.info("Viewing follow-ups for Thu, 9 Oct 2026")}
+          onClick={() => toast.info("Select date filter coming soon")}
           className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 sm:self-auto"
         >
           <CalendarDays size={15} className="text-slate-500" />
@@ -210,29 +225,41 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
             </div>
             <p className="mt-3 text-xs font-medium text-slate-500">Hot leads</p>
             <p className="mt-0.5 text-2xl font-extrabold text-slate-900">{hotCount}</p>
-            <p className="mt-0.5 flex items-center gap-0.5 text-xs font-semibold text-emerald-500">
-              <span>↗</span> +3
+            <p className="mt-0.5 text-xs font-semibold text-slate-400">
+              {hotCount > 0 ? (
+                <span className="text-emerald-500">↗ +{hotCount}</span>
+              ) : (
+                "None pending"
+              )}
             </p>
           </div>
-          {/* Sparkline Wave Red */}
           <div className="self-end pb-1">
             <svg viewBox="0 0 110 40" className="h-10 w-28 overflow-visible">
               <defs>
                 <linearGradient id="spark-hot" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.25" />
+                  <stop offset="0%" stopColor="#f43f5e" stopOpacity={hotCount > 0 ? 0.25 : 0.05} />
                   <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
-                d="M 0 35 C 20 35, 30 25, 45 28 C 60 31, 70 12, 85 16 C 95 19, 102 24, 110 22 L 110 40 L 0 40 Z"
+                d={
+                  hotCount > 0
+                    ? "M 0 35 C 20 35, 30 25, 45 28 C 60 31, 70 12, 85 16 C 95 19, 102 24, 110 22 L 110 40 L 0 40 Z"
+                    : "M 0 36 L 110 36 L 110 40 L 0 40 Z"
+                }
                 fill="url(#spark-hot)"
               />
               <path
-                d="M 0 35 C 20 35, 30 25, 45 28 C 60 31, 70 12, 85 16 C 95 19, 102 24, 110 22"
+                d={
+                  hotCount > 0
+                    ? "M 0 35 C 20 35, 30 25, 45 28 C 60 31, 70 12, 85 16 C 95 19, 102 24, 110 22"
+                    : "M 0 36 L 110 36"
+                }
                 fill="none"
                 stroke="#f43f5e"
-                strokeWidth="2.2"
+                strokeWidth={hotCount > 0 ? "2.2" : "1.5"}
                 strokeLinecap="round"
+                strokeDasharray={hotCount > 0 ? undefined : "3 3"}
               />
             </svg>
           </div>
@@ -246,29 +273,41 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
             </div>
             <p className="mt-3 text-xs font-medium text-slate-500">Due today</p>
             <p className="mt-0.5 text-2xl font-extrabold text-slate-900">{dueTodayCount}</p>
-            <p className="mt-0.5 flex items-center gap-0.5 text-xs font-semibold text-emerald-500">
-              <span>↗</span> +2
+            <p className="mt-0.5 text-xs font-semibold text-slate-400">
+              {dueTodayCount > 0 ? (
+                <span className="text-emerald-500">↗ +{dueTodayCount}</span>
+              ) : (
+                "None today"
+              )}
             </p>
           </div>
-          {/* Sparkline Wave Amber */}
           <div className="self-end pb-1">
             <svg viewBox="0 0 110 40" className="h-10 w-28 overflow-visible">
               <defs>
                 <linearGradient id="spark-due" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity={dueTodayCount > 0 ? 0.25 : 0.05} />
                   <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
-                d="M 0 35 C 25 36, 40 33, 55 24 C 70 15, 80 20, 95 28 C 102 32, 106 33, 110 32 L 110 40 L 0 40 Z"
+                d={
+                  dueTodayCount > 0
+                    ? "M 0 35 C 25 36, 40 33, 55 24 C 70 15, 80 20, 95 28 C 102 32, 106 33, 110 32 L 110 40 L 0 40 Z"
+                    : "M 0 36 L 110 36 L 110 40 L 0 40 Z"
+                }
                 fill="url(#spark-due)"
               />
               <path
-                d="M 0 35 C 25 36, 40 33, 55 24 C 70 15, 80 20, 95 28 C 102 32, 106 33, 110 32"
+                d={
+                  dueTodayCount > 0
+                    ? "M 0 35 C 25 36, 40 33, 55 24 C 70 15, 80 20, 95 28 C 102 32, 106 33, 110 32"
+                    : "M 0 36 L 110 36"
+                }
                 fill="none"
                 stroke="#f59e0b"
-                strokeWidth="2.2"
+                strokeWidth={dueTodayCount > 0 ? "2.2" : "1.5"}
                 strokeLinecap="round"
+                strokeDasharray={dueTodayCount > 0 ? undefined : "3 3"}
               />
             </svg>
           </div>
@@ -282,29 +321,41 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
             </div>
             <p className="mt-3 text-xs font-medium text-slate-500">Going cold</p>
             <p className="mt-0.5 text-2xl font-extrabold text-slate-900">{goingColdCount}</p>
-            <p className="mt-0.5 flex items-center gap-0.5 text-xs font-semibold text-rose-500">
-              <span>↗</span> +5
+            <p className="mt-0.5 text-xs font-semibold text-slate-400">
+              {goingColdCount > 0 ? (
+                <span className="text-rose-500">↗ +{goingColdCount}</span>
+              ) : (
+                "None cold"
+              )}
             </p>
           </div>
-          {/* Sparkline Wave Blue */}
           <div className="self-end pb-1">
             <svg viewBox="0 0 110 40" className="h-10 w-28 overflow-visible">
               <defs>
                 <linearGradient id="spark-cold" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={goingColdCount > 0 ? 0.25 : 0.05} />
                   <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
-                d="M 0 35 C 18 36, 32 20, 48 22 C 64 24, 76 34, 92 28 C 100 25, 106 20, 110 21 L 110 40 L 0 40 Z"
+                d={
+                  goingColdCount > 0
+                    ? "M 0 35 C 18 36, 32 20, 48 22 C 64 24, 76 34, 92 28 C 100 25, 106 20, 110 21 L 110 40 L 0 40 Z"
+                    : "M 0 36 L 110 36 L 110 40 L 0 40 Z"
+                }
                 fill="url(#spark-cold)"
               />
               <path
-                d="M 0 35 C 18 36, 32 20, 48 22 C 64 24, 76 34, 92 28 C 100 25, 106 20, 110 21"
+                d={
+                  goingColdCount > 0
+                    ? "M 0 35 C 18 36, 32 20, 48 22 C 64 24, 76 34, 92 28 C 100 25, 106 20, 110 21"
+                    : "M 0 36 L 110 36"
+                }
                 fill="none"
                 stroke="#6366f1"
-                strokeWidth="2.2"
+                strokeWidth={goingColdCount > 0 ? "2.2" : "1.5"}
                 strokeLinecap="round"
+                strokeDasharray={goingColdCount > 0 ? undefined : "3 3"}
               />
             </svg>
           </div>
@@ -316,31 +367,43 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-500">
               <CheckCircle2 size={19} />
             </div>
-            <p className="mt-3 text-xs font-medium text-slate-500">Followed up this week</p>
+            <p className="mt-3 text-xs font-medium text-slate-500">Followed up</p>
             <p className="mt-0.5 text-2xl font-extrabold text-slate-900">{followedUpCount}</p>
-            <p className="mt-0.5 flex items-center gap-0.5 text-xs font-semibold text-emerald-500">
-              <span>↗</span> +4
+            <p className="mt-0.5 text-xs font-semibold text-slate-400">
+              {followedUpCount > 0 ? (
+                <span className="text-emerald-500">↗ +{followedUpCount}</span>
+              ) : (
+                "0 this week"
+              )}
             </p>
           </div>
-          {/* Sparkline Wave Green */}
           <div className="self-end pb-1">
             <svg viewBox="0 0 110 40" className="h-10 w-28 overflow-visible">
               <defs>
                 <linearGradient id="spark-won" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={followedUpCount > 0 ? 0.25 : 0.05} />
                   <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
               <path
-                d="M 0 34 C 20 34, 35 28, 50 25 C 65 22, 75 14, 90 12 C 98 11, 105 18, 110 19 L 110 40 L 0 40 Z"
+                d={
+                  followedUpCount > 0
+                    ? "M 0 34 C 20 34, 35 28, 50 25 C 65 22, 75 14, 90 12 C 98 11, 105 18, 110 19 L 110 40 L 0 40 Z"
+                    : "M 0 36 L 110 36 L 110 40 L 0 40 Z"
+                }
                 fill="url(#spark-won)"
               />
               <path
-                d="M 0 34 C 20 34, 35 28, 50 25 C 65 22, 75 14, 90 12 C 98 11, 105 18, 110 19"
+                d={
+                  followedUpCount > 0
+                    ? "M 0 34 C 20 34, 35 28, 50 25 C 65 22, 75 14, 90 12 C 98 11, 105 18, 110 19"
+                    : "M 0 36 L 110 36"
+                }
                 fill="none"
                 stroke="#10b981"
-                strokeWidth="2.2"
+                strokeWidth={followedUpCount > 0 ? "2.2" : "1.5"}
                 strokeLinecap="round"
+                strokeDasharray={followedUpCount > 0 ? undefined : "3 3"}
               />
             </svg>
           </div>
@@ -439,16 +502,14 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
                             const initial =
                               lead.name.trim().charAt(0).toUpperCase() || "L";
 
-                            // Parse headline and subtext from engagementReason or summary
                             const reasonParts = (
-                              lead.engagementReason || lead.summary
+                              lead.engagementReason || lead.summary || ""
                             ).split(". ");
                             const headline =
-                              reasonParts[0] || "Follow up requested";
+                              reasonParts[0] || "Follow-up recommended";
                             const subReason =
                               reasonParts.slice(1).join(". ") || lead.summary;
 
-                            // Dot color
                             const dotColor =
                               lead.status === "hot"
                                 ? "bg-rose-500"
@@ -458,15 +519,8 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
 
                             const lastMsg =
                               lead.lastMessageTime ||
-                              (idx === 0
-                                ? "2 hours ago"
-                                : idx === 1
-                                ? "5 hours ago"
-                                : idx === 2
-                                ? "6 hours ago"
-                                : idx === 3
-                                ? "8 hours ago"
-                                : "1 day ago");
+                              lead.lastContactDate ||
+                              "Recently";
 
                             return (
                               <tr
@@ -501,7 +555,7 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
                                         {lead.name}
                                       </Link>
                                       <p className="truncate text-[11px] font-medium text-slate-400">
-                                        {lead.phone || "+91 98765 43210"}
+                                        {lead.phone || "No phone recorded"}
                                       </p>
                                     </div>
                                   </div>
@@ -566,23 +620,21 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
 
                                       {menuOpenId === lead.id && (
                                         <div className="absolute right-0 top-full z-20 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1 text-left shadow-lg">
+                                          {lead.phone && (
+                                            <button
+                                              onClick={() => {
+                                                navigator.clipboard?.writeText(lead.phone || "");
+                                                toast.success("Phone number copied");
+                                                setMenuOpenId(null);
+                                              }}
+                                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                                            >
+                                              <Copy size={13} /> Copy phone
+                                            </button>
+                                          )}
                                           <button
                                             onClick={() => {
-                                              navigator.clipboard?.writeText(
-                                                lead.phone || ""
-                                              );
-                                              toast.success("Phone number copied");
-                                              setMenuOpenId(null);
-                                            }}
-                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                                          >
-                                            <Copy size={13} /> Copy phone
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              toast.info(
-                                                `Follow-up for ${lead.name} snoozed to tomorrow`
-                                              );
+                                              toast.info(`Follow-up for ${lead.name} snoozed`);
                                               setMenuOpenId(null);
                                             }}
                                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -601,8 +653,8 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
                       </table>
                     </div>
                   ) : (
-                    <div className="px-5 py-6 text-center text-xs text-slate-400">
-                      No follow-ups scheduled for this period.
+                    <div className="px-5 py-7 text-center text-xs text-slate-400">
+                      Nothing scheduled here yet.
                     </div>
                   )}
                 </div>
@@ -611,6 +663,25 @@ export function FollowupsView({ initialLeads }: { initialLeads: Lead[] }) {
           );
         })}
       </div>
+
+      {/* Empty State Banner if no leads exist anywhere */}
+      {!hasAnyLeads && (
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-2xs">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <UploadCloud size={24} />
+          </div>
+          <h3 className="mt-3 text-sm font-bold text-slate-800">No leads in workspace yet</h3>
+          <p className="mt-1 text-xs text-slate-500 max-w-md mx-auto">
+            Export a chat from WhatsApp (.zip with media) and drop it here. Loopin will automatically detect hot leads, objections, and follow-up schedules.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700"
+          >
+            <UploadCloud size={14} /> Import chat export
+          </Link>
+        </div>
+      )}
 
       {/* AI Advice Footer Note */}
       <div className="flex items-center gap-3 rounded-2xl border border-indigo-100/80 bg-indigo-50/60 p-4 text-xs font-medium text-indigo-900">

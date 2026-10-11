@@ -4,6 +4,17 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T08:04:00+05:30 — Remove hardcoded demo data and dynamically handle real leads and empty states
+
+- Changed:
+  - Removed all `demoLeads` fallbacks from `getCurrentUserLeads` and `getCurrentUserLead` in `src/lib/leads.ts`.
+  - Updated `FollowupsView` in `src/components/followups-view.tsx` to compute KPI card counts, trends, and accordion groups exclusively from the current user's real Supabase data.
+  - Implemented clean empty states ("Nothing scheduled here yet" per group, and a workspace prompt to import chat exports when no leads exist).
+  - Updated `AppShell` in `src/components/app-shell.tsx` to display live dates, dynamic lead quotas, and genuine user profile info without placeholder values.
+- Why: Ensure the dashboard accurately displays only current user data, rendering the rich table layout when leads exist and appropriate empty states when the account has no leads.
+- Validation: TypeScript check (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T07:55:00+05:30 — Overhaul dashboard follow-ups UI to match Figma design
 
 - Changed:

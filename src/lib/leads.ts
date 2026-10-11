@@ -67,8 +67,6 @@ export function mapLead(row: LeadRow): Lead {
 
 const leadSelect = "id,name,phone,status,priority,engagement_pattern,engagement_reason,summary,business_need,client_concerns,buying_signals,client_sentiment,objections,promises_made,suggested_followup,suggested_followup_date,last_contact_date,followed_up,raw_transcript";
 
-import { demoLeads } from "@/lib/types";
-
 export async function getCurrentUserRole() {
   const supabase = await createClient();
   if (!supabase) return null;
@@ -80,27 +78,25 @@ export async function getCurrentUserRole() {
 
 export async function getCurrentUserLeads(): Promise<Lead[]> {
   const supabase = await createClient();
-  if (!supabase) return demoLeads;
+  if (!supabase) return [];
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return demoLeads;
+  if (!user) return [];
   const { data, error } = await supabase.from("leads").select(leadSelect).eq("user_id", user.id).order("updated_at", { ascending: false });
-  if (error || !data || data.length === 0) {
-    return demoLeads;
+  if (error || !data) {
+    if (error) console.error("getCurrentUserLeads error:", error);
+    return [];
   }
   return (data as LeadRow[]).map(mapLead);
 }
 
 export async function getCurrentUserLead(id: string): Promise<Lead | null> {
   const supabase = await createClient();
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase.from("leads").select(leadSelect).eq("id", id).eq("user_id", user.id).maybeSingle();
-      if (!error && data) {
-        return mapLead(data as LeadRow);
-      }
-    }
+  if (!supabase) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase.from("leads").select(leadSelect).eq("id", id).eq("user_id", user.id).maybeSingle();
+  if (error || !data) {
+    return null;
   }
-  const fallback = demoLeads.find((l) => l.id === id);
-  return fallback ?? null;
+  return mapLead(data as LeadRow);
 }

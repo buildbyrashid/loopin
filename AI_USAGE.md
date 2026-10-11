@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T08:04:00+05:30 | Codex | Remove hardcoded demo data and dynamically handle real leads and empty states | Removed hardcoded `demoLeads` from `src/lib/leads.ts` and `src/components/followups-view.tsx`. Updated followups view and KPI metrics to compute dynamically from actual user leads in Supabase, displaying clean empty states when no data is present and the full table view when leads exist. Updated `AppShell` with live date and real lead count. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T07:55:00+05:30 | Codex | Overhaul dashboard follow-ups UI to match Figma design | Rebuilt `FollowupsView` and `AppShell` with desktop search bar with `Ctrl K`, Thu 9 Oct 2026 date indicator, user profile dropdown, Pro Plan progress card, 4 stat cards with SVG sparkline wave charts, interactive expandable accordion sections for Today (5), Tomorrow (3), This week (7), Later (12) with table headers, styled priority badges with flame icon for High, and rich demo data fallback. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T07:40:00+05:30 | Codex | Increase logo size across all views | Increased default Logo component size to `h-10 sm:h-11` in `src/components/app-shell.tsx`, login/signup logo to `h-12 sm:h-14` in `src/components/auth-form.tsx`, and 404 page logo to `h-11` in `src/app/not-found.tsx`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

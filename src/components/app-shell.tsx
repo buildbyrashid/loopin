@@ -50,10 +50,18 @@ export function Logo({
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [account, setAccount] = useState({ name: "test", role: "Client" });
+  const [account, setAccount] = useState({ name: "Account", role: "Client" });
+  const [leadsCount, setLeadsCount] = useState<number>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const formattedDate = new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date());
 
   useEffect(() => {
     const supabase = createClient();
@@ -63,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setAccount({ name: "test", role: "Client" });
+        setAccount({ name: "Account", role: "Client" });
         return;
       }
       const { data: profile } = await supabase
@@ -71,11 +79,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         .select("full_name,role")
         .eq("id", user.id)
         .maybeSingle();
+
+      const { count } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+
+      if (typeof count === "number") {
+        setLeadsCount(count);
+      }
+
       const metadataName =
         typeof user.user_metadata?.full_name === "string"
           ? user.user_metadata.full_name
           : "";
-      const fallbackName = user.email?.split("@")[0] ?? "test";
+      const fallbackName = user.email?.split("@")[0] ?? "Account";
       setAccount({
         name: profile?.full_name || metadataName || fallbackName,
         role: profile?.role === "admin" ? "Admin" : "Client",
@@ -148,24 +166,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Crown size={16} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-900">Pro Plan</p>
-                <p className="text-[11px] text-slate-500">1,250 leads</p>
+                <p className="text-xs font-bold text-slate-900">Workspace</p>
+                <p className="text-[11px] text-slate-500">{leadsCount} leads</p>
               </div>
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-2.5">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200/80">
                 <div
-                  className="h-full rounded-full bg-[#4F46E5]"
-                  style={{ width: "62%" }}
+                  className="h-full rounded-full bg-[#4F46E5] transition-all"
+                  style={{
+                    width: `${Math.max(
+                      Math.min(Math.round((leadsCount / 250) * 100), 100),
+                      leadsCount > 0 ? 5 : 0
+                    )}%`,
+                  }}
                 />
               </div>
-              <span className="text-[11px] font-bold text-slate-600">62%</span>
+              <span className="text-[11px] font-bold text-slate-600">
+                {Math.min(Math.round((leadsCount / 250) * 100), 100)}%
+              </span>
             </div>
 
             <button
               onClick={() =>
-                toast.info("Pro Plan is active with unlimited AI lead parsing.")
+                toast.info("Unlimited lead extractions included in your plan.")
               }
               className="mt-3.5 w-full rounded-xl bg-[#4F46E5] py-2 text-center text-xs font-semibold text-white shadow-xs transition hover:bg-[#4338CA] active:scale-[0.99]"
             >
@@ -249,7 +274,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <div className="hidden items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs sm:flex">
               <Calendar size={15} className="text-slate-500" />
-              <span>Thu, 9 Oct 2026</span>
+              <span>{formattedDate}</span>
             </div>
 
             <div className="relative">
