@@ -347,20 +347,64 @@ export default function Home() {
           {/* Interactive Hero Visual Showcase */}
           <div className="relative">
             <div className="relative rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl lg:p-7">
-              {/* Header mockup */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              {/* WhatsApp chat & voice note illustration (as per user UI design) */}
+              <div className="relative mb-4 rounded-2xl border border-indigo-100/70 bg-gradient-to-br from-indigo-50/70 via-slate-50/40 to-white/90 p-3.5 shadow-xs">
+                {/* Top: WhatsApp icon + text message bubble */}
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500 text-white shadow-sm">
-                    <MessageCircle size={22} />
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#25D366] text-white shadow-md shadow-emerald-500/25">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.32a8.19 8.19 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.25 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.07-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.12-.22-.19-.47-.31z" />
+                    </svg>
                   </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900">WhatsApp Sales Radar</h2>
-                    <p className="text-xs text-slate-400">Live chat extraction preview</p>
+                  {/* Incoming text message skeleton bubble */}
+                  <div className="flex-1 rounded-2xl border border-slate-100 bg-white px-3.5 py-2.5 shadow-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded-full bg-slate-200" />
+                      <div className="h-2 w-28 rounded-full bg-slate-200" />
+                    </div>
+                    <div className="mt-2 h-2 w-40 rounded-full bg-slate-100" />
                   </div>
                 </div>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                  Ready to send
-                </span>
+
+                {/* Bottom row: Voice note message bubble + curved arrow pointing down */}
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-3.5 py-2.5 shadow-xs">
+                    {/* Voice waveform icon */}
+                    <div className="flex items-center gap-0.5 text-indigo-600">
+                      <span className="inline-block h-2 w-0.5 rounded-full bg-indigo-400" />
+                      <span className="inline-block h-3.5 w-0.5 rounded-full bg-indigo-500" />
+                      <span className="inline-block h-5 w-0.5 rounded-full bg-indigo-600" />
+                      <span className="inline-block h-3 w-0.5 rounded-full bg-indigo-500" />
+                      <span className="inline-block h-4 w-0.5 rounded-full bg-indigo-600" />
+                      <span className="inline-block h-2 w-0.5 rounded-full bg-indigo-400" />
+                    </div>
+                    {/* Audio track placeholders */}
+                    <div className="space-y-1.5">
+                      <div className="h-2 w-24 rounded-full bg-indigo-100" />
+                      <div className="h-1.5 w-14 rounded-full bg-slate-100" />
+                    </div>
+                  </div>
+
+                  {/* Curved arrow pointing down into extracted lead card */}
+                  <div className="pr-4 pt-1">
+                    <svg
+                      width="38"
+                      height="38"
+                      viewBox="0 0 38 38"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-indigo-500"
+                    >
+                      <path
+                        d="M6 10C18 10 26 16 26 28M26 28L21 23M26 28L31 23"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* Lead 1: Engaged Evaluator (Hot) */}

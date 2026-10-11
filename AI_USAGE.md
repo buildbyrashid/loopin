@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T06:50:00+05:30 | Codex | Add visual WhatsApp chat and voice note illustration to hero showcase | Added glassmorphic incoming chat mockup with WhatsApp icon, text skeleton, voice waveform pill, and curved arrow pointing down into extracted lead card in `src/app/page.tsx`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T06:44:00+05:30 | Codex | Remove competitor brand name from landing copy | Replaced competitor brand name Wati in `src/app/page.tsx` with generic, brand-agnostic positioning; updated hero headline to "Never let a WhatsApp lead go cold." | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T06:37:00+05:30 | Codex | Enhance landing page UI with positioning and interactive FAQ | Revamped `src/app/page.tsx` with sharp product copy, hot vs low priority preview cards, 3-step workflow, and interactive FAQ accordion covering bots vs humans, regional voice notes, and 100% human-led drafting while preserving upload functionality. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

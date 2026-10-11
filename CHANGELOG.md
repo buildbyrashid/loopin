@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T06:50:00+05:30 — Add visual WhatsApp chat and voice note illustration to hero showcase
+
+- Changed: Replaced the static header in the hero right-side card with an illustrative glassmorphic mockup showing an incoming WhatsApp text message bubble, a voice note waveform bubble with audio track bars, and an energetic curved arrow pointing directly down into the extracted lead card below in `src/app/page.tsx`.
+- Why: Provide an intuitive, instant visual metaphor showing raw WhatsApp chat + voice notes converting into actionable, high-priority lead follow-ups.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T06:44:00+05:30 — Remove competitor brand name from landing copy
 
 - Changed: Replaced competitor brand references on the landing page in `src/app/page.tsx` with generic, high-impact copy. Set the primary headline to the official tagline ("Never let a WhatsApp lead go cold.") and badge to "Other tools automate conversations. We protect them."
