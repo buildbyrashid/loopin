@@ -4,9 +4,16 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T06:44:00+05:30 — Remove competitor brand name from landing copy
+
+- Changed: Replaced competitor brand references on the landing page in `src/app/page.tsx` with generic, high-impact copy. Set the primary headline to the official tagline ("Never let a WhatsApp lead go cold.") and badge to "Other tools automate conversations. We protect them."
+- Why: Remove competitor brand name issues and present clean, proprietary product messaging.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T06:37:00+05:30 — Enhance landing page UI with positioning and interactive FAQ
 
-- Changed: Revamped the landing page in `src/app/page.tsx` with high-conversion product messaging ("Tools like Wati automate the conversation. We protect it."), visual interactive showcase cards illustrating hot leads vs. low-priority leads, clear 3-step workflow, and an interactive FAQ accordion addressing chatbots vs. human sales, Malayalam/English voice notes, and 100% human-in-the-loop follow-up drafts. Preserved the working zip upload and progress tracking logic.
+- Changed: Revamped the landing page in `src/app/page.tsx` with high-conversion product messaging, visual interactive showcase cards illustrating hot leads vs. low-priority leads, clear 3-step workflow, and an interactive FAQ accordion addressing chatbots vs. human sales, Malayalam/English voice notes, and 100% human-in-the-loop follow-up drafts. Preserved the working zip upload and progress tracking logic.
 - Why: Clearly position Loopin's unique value proposition for consultative/trust-based WhatsApp sales and address judge/buyer questions directly on the landing page.
 - Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
 - Limitations: None; all existing upload and processing API flows remain preserved.

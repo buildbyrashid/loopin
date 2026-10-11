@@ -251,13 +251,13 @@ export default function Home() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-indigo-700 shadow-xs">
               <Sparkles size={14} className="text-indigo-600" />
-              <span>Never let a warm WhatsApp deal go cold</span>
+              <span>Other tools automate conversations. We protect them.</span>
             </div>
 
             <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl lg:leading-[1.1]">
-              Tools like Wati automate the conversation.{" "}
+              Never let a WhatsApp lead{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-500">
-                We protect it.
+                go cold.
               </span>
             </h1>
 
@@ -457,7 +457,7 @@ export default function Home() {
               </div>
               <h3 className="mt-5 text-lg font-bold text-slate-900">Chatbots Kill Deals</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                Wati and API chatbots send canned answers that feel robotic. When an agency or
+                Generic API chatbots send canned answers that feel robotic. When an agency or
                 consulting client raises a nuanced doubt, a chatbot kills trust immediately.
               </p>
             </div>

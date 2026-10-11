@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T06:44:00+05:30 | Codex | Remove competitor brand name from landing copy | Replaced competitor brand name Wati in `src/app/page.tsx` with generic, brand-agnostic positioning; updated hero headline to "Never let a WhatsApp lead go cold." | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T06:37:00+05:30 | Codex | Enhance landing page UI with positioning and interactive FAQ | Revamped `src/app/page.tsx` with sharp product copy, hot vs low priority preview cards, 3-step workflow, and interactive FAQ accordion covering bots vs humans, regional voice notes, and 100% human-led drafting while preserving upload functionality. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T04:14:13+05:30 | Codex | Clean up processed WhatsApp exports | Added background successful-processing cleanup for the private Supabase Storage ZIP while preserving the uploads history row and generated lead in `src/app/api/process/route.ts`; documented retry behavior. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
