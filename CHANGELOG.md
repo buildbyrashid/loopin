@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T07:40:00+05:30 — Increase logo size across all views
+
+- Changed: Increased the default `Logo` size from `h-8` to `h-10 sm:h-11` in `src/components/app-shell.tsx` (boosting visibility across navigation bars, footers, and sidebars), increased login/signup logo size to `h-12 sm:h-14` in `src/components/auth-form.tsx`, and updated 404 page logo to `h-11` in `src/app/not-found.tsx`.
+- Why: Enhance brand prominence and visual proportion across the whole app.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T07:35:00+05:30 — Replace logo across the application with Loopin Infinity Logo
 
 - Changed: Updated the shared `Logo` component in `src/components/app-shell.tsx` to render `/images/Loopin Infinity Logo.png` with support for light and inverted modes. Applied the updated logo across the landing page navbar and footer, workspace sidebar, mobile headers, authentication screens (`src/components/auth-form.tsx`), admin shell (`src/components/admin-shell.tsx`), and 404 page (`src/app/not-found.tsx`).

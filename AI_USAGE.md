@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T07:40:00+05:30 | Codex | Increase logo size across all views | Increased default Logo component size to `h-10 sm:h-11` in `src/components/app-shell.tsx`, login/signup logo to `h-12 sm:h-14` in `src/components/auth-form.tsx`, and 404 page logo to `h-11` in `src/app/not-found.tsx`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T07:35:00+05:30 | Codex | Replace logo across application with Loopin Infinity Logo | Updated `src/components/app-shell.tsx` to render `/images/Loopin Infinity Logo.png` with support for light/dark themes across navbar, footer, sidebar, auth forms, admin console, and 404 page. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T07:16:40+05:30 | Codex | Enable instant workspace redirect on signup without manual verification | Updated `src/components/auth-form.tsx` to automatically redirect users to `/followups` upon signup when Supabase returns an active session or auto-signs in. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |

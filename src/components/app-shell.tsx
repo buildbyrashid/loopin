@@ -13,7 +13,7 @@ const nav = [
 ];
 
 export function Logo({
-  className = "h-8 w-auto",
+  className = "h-10 sm:h-11 w-auto",
   light = false,
 }: {
   className?: string;
