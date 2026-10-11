@@ -12,8 +12,24 @@ const nav = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function Logo() {
-  return <Link href="/" className="text-[24px] font-bold tracking-[-0.06em] text-slate-950">Loop<span className="text-indigo-600">in</span></Link>;
+export function Logo({
+  className = "h-8 w-auto",
+  light = false,
+}: {
+  className?: string;
+  light?: boolean;
+} = {}) {
+  return (
+    <Link href="/" className="inline-flex items-center">
+      <img
+        src="/images/Loopin Infinity Logo.png"
+        alt="Loopin"
+        className={`${className} object-contain transition-opacity hover:opacity-90 ${
+          light ? "brightness-0 invert" : ""
+        }`}
+      />
+    </Link>
+  );
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {

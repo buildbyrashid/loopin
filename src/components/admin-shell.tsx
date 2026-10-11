@@ -26,7 +26,7 @@ export function AdminShell({ children, email }: { children: React.ReactNode; ema
   return (
     <div className="min-h-screen bg-[#f7f8fc] text-slate-950">
       <aside className="fixed inset-y-0 left-0 hidden w-[242px] border-r border-slate-200/80 bg-slate-950 px-5 py-7 text-white lg:flex lg:flex-col">
-        <Logo />
+        <Logo light />
         <div className="mt-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300"><ShieldCheck size={14} /> Admin console</div>
         <nav className="mt-10 space-y-2">
           {nav.map(({ href, label, icon: Icon }) => {

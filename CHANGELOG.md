@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T07:35:00+05:30 — Replace logo across the application with Loopin Infinity Logo
+
+- Changed: Updated the shared `Logo` component in `src/components/app-shell.tsx` to render `/images/Loopin Infinity Logo.png` with support for light and inverted modes. Applied the updated logo across the landing page navbar and footer, workspace sidebar, mobile headers, authentication screens (`src/components/auth-form.tsx`), admin shell (`src/components/admin-shell.tsx`), and 404 page (`src/app/not-found.tsx`).
+- Why: Consistently brand the entire product with the official Loopin infinity logo mark.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None.
+
 ## 2026-10-11T07:16:40+05:30 — Enable instant workspace redirect on signup without manual verification
 
 - Changed: Updated the signup submission handler in `src/components/auth-form.tsx` to automatically redirect users straight into `/followups` upon account creation whenever Supabase returns an active session or auto-signs in, avoiding verification halts.

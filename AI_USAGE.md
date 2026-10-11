@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T07:35:00+05:30 | Codex | Replace logo across application with Loopin Infinity Logo | Updated `src/components/app-shell.tsx` to render `/images/Loopin Infinity Logo.png` with support for light/dark themes across navbar, footer, sidebar, auth forms, admin console, and 404 page. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T07:16:40+05:30 | Codex | Enable instant workspace redirect on signup without manual verification | Updated `src/components/auth-form.tsx` to automatically redirect users to `/followups` upon signup when Supabase returns an active session or auto-signs in. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
 
 | 2026-10-11T07:10:00+05:30 | Codex | Implement minimal SaaS-level structured footer | Replaced single-line footer with minimal 4-column SaaS footer including operational badge, Product/Intelligence/Workspace links, and copyright sub-bar in `src/app/page.tsx`. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
