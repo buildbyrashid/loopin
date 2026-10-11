@@ -4,7 +4,12 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
-## 2026-10-11T04:14:13+05:30 — Remove processed ZIPs from private storage
+## 2026-10-11T06:37:00+05:30 — Enhance landing page UI with positioning and interactive FAQ
+
+- Changed: Revamped the landing page in `src/app/page.tsx` with high-conversion product messaging ("Tools like Wati automate the conversation. We protect it."), visual interactive showcase cards illustrating hot leads vs. low-priority leads, clear 3-step workflow, and an interactive FAQ accordion addressing chatbots vs. human sales, Malayalam/English voice notes, and 100% human-in-the-loop follow-up drafts. Preserved the working zip upload and progress tracking logic.
+- Why: Clearly position Loopin's unique value proposition for consultative/trust-based WhatsApp sales and address judge/buyer questions directly on the landing page.
+- Validation: TypeScript compilation (`npm run typecheck`) passed with 0 errors.
+- Limitations: None; all existing upload and processing API flows remain preserved.
 
 - Changed: The processing route now schedules removal of the uploaded ZIP from the private `whatsapp-exports` bucket after the lead and completed upload status are saved. The success response returns without waiting for cleanup, so the user-facing toast is immediate. Upload history and derived lead data remain available, and cleanup failures are logged without discarding a successful result.
 - Why: Processed exports no longer need to consume Supabase Storage space while the upload record still provides useful audit and troubleshooting history.

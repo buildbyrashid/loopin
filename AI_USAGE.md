@@ -4,6 +4,8 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
+| 2026-10-11T06:37:00+05:30 | Codex | Enhance landing page UI with positioning and interactive FAQ | Revamped `src/app/page.tsx` with sharp product copy, hot vs low priority preview cards, 3-step workflow, and interactive FAQ accordion covering bots vs humans, regional voice notes, and 100% human-led drafting while preserving upload functionality. | Pending | TypeScript check (`tsc --noEmit`) passed with 0 errors. |
+
 | 2026-10-11T04:14:13+05:30 | Codex | Clean up processed WhatsApp exports | Added background successful-processing cleanup for the private Supabase Storage ZIP while preserving the uploads history row and generated lead in `src/app/api/process/route.ts`; documented retry behavior. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
 
 | 2026-10-11T05:42:00+05:30 | Codex | Translate Malayalam voice notes into English | Switched the default audio path to OpenAI English translation for Malayalam and mixed Malayalam-English notes, with an optional original-language transcription mode in `src/app/api/process/route.ts` and `.env.local.example`. | Pending | TypeScript, ESLint, diff check, and production Webpack build passed. |
